@@ -1,5 +1,5 @@
 {
-	"geode": "4.2.0",
+	"geode": "4.3.1",
 	"gd": {
 		"win": "2.2074",
 		"android": "2.2074",
@@ -8,9 +8,10 @@
 	},
 	"id": "ninxout.options_api",
 	"name": "Options API",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"developer": "ninXout",
 	"description": "",
+	"early-load": true,
 	"api": {
 		"include": [
 			"include/*.hpp"
