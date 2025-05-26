@@ -27,8 +27,8 @@ $on_mod(Loaded) {
     OptionsAPI::addPreLevelSetting<bool>(
 		"My Crazy Setting",                                                // name
 		"my-setting"_spr,                                                  // id
-		[myBoolSetting](GJGameLevel*) { myBoolSetting = !myBoolSetting },  // toggle callback
-		[myBoolSetting](GJGameLevel*) { return myBoolSetting },            // initial value callback
+		[](GJGameLevel*) { myBoolSetting = !myBoolSetting; },  // toggle callback
+		[](GJGameLevel*) { return myBoolSetting; },            // initial value callback
 		"My Crazy Description!"                                            // description
 	);
 }
