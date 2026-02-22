@@ -31,8 +31,8 @@ std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
 std::map<std::string, EditorToggleSetting> g_editToggles;
 
-// $execute {
-$on_mod(Loaded) {
+$execute {
+// $on_mod(Loaded) {
 	// new EventListener<EventFilter<AddPreToggleEvent>>(+[](AddPreToggleEvent* ev) {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod) {
