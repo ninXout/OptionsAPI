@@ -36,42 +36,45 @@ $execute {
 	// new EventListener<EventFilter<AddPreToggleEvent>>(+[](AddPreToggleEvent* ev) {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod) {
-			g_preToggles[fmt::format("{}", modID)] = PreToggleSetting{
+			log::error("[NOT AN ACTUAL ERROR] {}/{}", modID, name);
+			g_preToggles[fmt::format("{}/{}", modID, name)] = PreToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		} else log::error("MOD IS NULLPTR!!!!!");
+		}
         return ListenerResult::Stop;
     });
 	preToggleListener.leak();
 	// new EventListener<EventFilter<AddMidToggleEvent>>(+[](AddMidToggleEvent* ev) {
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod) {
-			g_midToggles[fmt::format("{}", modID)] = MidToggleSetting{
+			log::error("[NOT AN ACTUAL ERROR] {}/{}", modID, name);
+			g_midToggles[fmt::format("{}/{}", modID, name)] = MidToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		} else log::error("MOD IS NULLPTR!!!!!");
+		}
         return ListenerResult::Stop;
     });
 	midToggleListener.leak();
 	// new EventListener<EventFilter<AddEditToggleEvent>>(+[](AddEditToggleEvent* ev) {
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod) {
-			g_editToggles[fmt::format("{}", modID)] = EditorToggleSetting{
+			log::error("[NOT AN ACTUAL ERROR] {}/{}", modID, name);
+			g_editToggles[fmt::format("{}/{}", modID, name)] = EditorToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		} else log::error("MOD IS NULLPTR!!!!!");
+		}
         return ListenerResult::Stop;
     });
 	editToggleListener.leak();
