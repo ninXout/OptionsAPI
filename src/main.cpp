@@ -49,7 +49,6 @@ $on_mod(Loaded) {
 	preToggleListener.leak();
 	// new EventListener<EventFilter<AddMidToggleEvent>>(+[](AddMidToggleEvent* ev) {
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
-		geode::Mod* mod = geode::Loader::get()->getInstalledMod(modID);
 		if (mod) {
 			g_midToggles[fmt::format("{}", modID)] = MidToggleSetting{
 				fmt::format("{}", name),
@@ -64,7 +63,6 @@ $on_mod(Loaded) {
 	midToggleListener.leak();
 	// new EventListener<EventFilter<AddEditToggleEvent>>(+[](AddEditToggleEvent* ev) {
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
-		geode::Mod* mod = geode::Loader::get()->getInstalledMod(modID);
 		if (mod) {
 			g_editToggles[fmt::format("{}", modID)] = EditorToggleSetting{
 				fmt::format("{}", name),
