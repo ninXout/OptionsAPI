@@ -43,7 +43,7 @@ $execute {
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		}
+		} else log::error("MOD IS NULLPTR!!!!!");
         return ListenerResult::Stop;
     });
 	preToggleListener.leak();
@@ -57,7 +57,7 @@ $execute {
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		}
+		} else log::error("MOD IS NULLPTR!!!!!");
         return ListenerResult::Stop;
     });
 	midToggleListener.leak();
@@ -71,7 +71,7 @@ $execute {
 				initialValue,
 				fmt::format("{}", desc)
 			};
-		}
+		} else log::error("MOD IS NULLPTR!!!!!");
         return ListenerResult::Stop;
     });
 	editToggleListener.leak();
