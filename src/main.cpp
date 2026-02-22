@@ -45,7 +45,7 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
+        // return ListenerResult::Stop;
     });
 	preToggleListener.leak();
 	// new EventListener<EventFilter<AddMidToggleEvent>>(+[](AddMidToggleEvent* ev) {
@@ -60,7 +60,7 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
+        // return ListenerResult::Stop;
     });
 	midToggleListener.leak();
 	// new EventListener<EventFilter<AddEditToggleEvent>>(+[](AddEditToggleEvent* ev) {
@@ -75,7 +75,7 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
+        // return ListenerResult::Stop;
     });
 	editToggleListener.leak();
 }
@@ -109,6 +109,7 @@ class $modify(GameLevelOptionsLayer) {
 		#endif
 
 		int index = GEODE_DESKTOP(3) GEODE_MOBILE(5); // remove ifdefs once desktop also gets CBF overrides --raydeeux
+		if (g_preToggles.empty()) log::error("PRE TOGGLES MAP IS EMPTY.");
 
 		for (auto [k, v] : g_preToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), fmt::format("{}", v.m_description).c_str());
