@@ -1,3 +1,6 @@
+# 1.0.3
+- Some More Silly Fixes
+
 # 1.0.3-beta.1
 - Some Silly Fixes
 

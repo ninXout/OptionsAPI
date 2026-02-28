@@ -80,7 +80,7 @@ $execute {
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", -4000)) {
+        if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
             geode::log::warn("Failed to set hook priority for GameLevelOptionsLayer::setupOptions");
         }
@@ -136,7 +136,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	};
 
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("GameOptionsLayer::setupOptions", -4000)) {
+        if (!self.setHookPriority("GameOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
             geode::log::warn("Failed to set hook priority for GameOptionsLayer::setupOptions");
         }
@@ -323,7 +323,7 @@ class $modify(GJOptionsLayer) {
 #include <Geode/modify/EditorOptionsLayer.hpp>
 class $modify(EditorOptionsLayer) {
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("EditorOptionsLayer::setupOptions", -4000)) {
+        if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
             geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
         }
