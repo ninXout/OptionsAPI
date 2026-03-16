@@ -1,5 +1,5 @@
 # 1.0.3
-- Some More Silly Fixes
+- Some More Silly Fixes For Compatibility With M336's LDM Utilities Modification
 
 # 1.0.3-beta.1
 - Some Silly Fixes
