@@ -1,3 +1,6 @@
+# 1.0.4
+- Some More Sillier Fixes Because The Function Bindings Were Really Borked Beyond Repair
+
 # 1.0.3
 - Some More Silly Fixes For Compatibility With M336's LDM Utilities Modification
 

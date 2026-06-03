@@ -131,8 +131,10 @@ class $modify(GameLevelOptionsLayer) {
 class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	// sorry for swearing in source code nin, you know how it is with me seeing rob fumble harder than the average NFL player --raydeeux
 	struct Fields {
-		CCNode* fuckingStupidIgnoreDamageToggle = nullptr;
-		CCNode* fuckingStupidPlaceholderToggle = nullptr;
+		CCMenuItemToggler* fuckingStupidIgnoreDamageToggle = nullptr;
+		CCMenuItemToggler* fuckingStupidPlaceholderToggle = nullptr;
+		CCMenuItemToggler* fuckingStupidPracticeMusicSyncToggle = nullptr;
+		CCMenuItemToggler* yetAnotherFuckingStupidPlaceholderToggle = nullptr;
 	};
 
 	static void onModify(auto& self) {
@@ -143,7 +145,6 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
     }
 
 	void onIgnoreDamage(CCObject* obj) {
-		CCMenuItemToggler* toggle = typeinfo_cast<CCMenuItemToggler*>(obj);
 		GameManager::get()->toggleGameVariable("0173");
 		if (auto pl = typeinfo_cast<PlayLayer*>(this->m_baseGameLayer)) pl->toggleIgnoreDamage(GameManager::get()->getGameVariable("0173"));
 	}
@@ -151,7 +152,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	void setupOptions() {
 		this->setTag(20260219);
 		this->setUserObject("options-api"_spr, CCBool::create(true));
-		auto winSize = CCDirector::get()->getWinSize();
+		this->setUserFlag("modified-by-options-api"_spr);
 
 		// robtop i hate you so f!@$%^&*(*&^%$#$%^&*ing much right now --raydeeux
 		this->m_togglesPerPage = 12;
@@ -170,15 +171,33 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		addToggle("Disable Checkpoints", 8, GameManager::get()->getGameVariable("0146"), "Disable platformer mode checkpoints and always respawn from the beginning. (Platformer Mode only)");
 		addToggle("Show Hitboxes", 9, GameManager::get()->getGameVariable("0166"), "Shows hitboxes while in practice mode.");
 		addToggle("Hitbox On Death", 11, GameManager::get()->getGameVariable("0179"), "Shows hitboxes upon death in both normal and practice mode.");
+
+		constexpr int yetAnotherPlaceholderToggleTag = 10;
+		addToggle(" ", yetAnotherPlaceholderToggleTag, false, ""); // DO NOT ADD DESCRIPTION. OTHERWISE THAT'S ONE MORE BUTTON TO GETCHILDBYTAG AND THAT WILL BE A FUCKING PAIN. --raydeeux
+		m_fields->yetAnotherFuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(yetAnotherPlaceholderToggleTag));
+		if (m_fields->yetAnotherFuckingStupidPlaceholderToggle) {
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setID("if-you-activate-this-placeholder-the-game-will-crash"_spr);
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setScale(0);
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setEnabled(false);
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_pListener = nullptr;
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_notClickable = true;
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_pfnSelector = nullptr;
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_onButton->removeMeAndCleanup();
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_onButton = nullptr;
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_offButton->removeMeAndCleanup();
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_offButton = nullptr;
+			m_fields->yetAnotherFuckingStupidPlaceholderToggle->removeAllChildrenWithCleanup(true);
+		}
+
 		// addToggle("Practice Music Sync", 10, m_baseGameLayer->m_practiceMusicSync, "Use the level's song instead of the normal practice mode song.");
-		GameToolbox::createToggleButton(
+		m_fields->fuckingStupidPracticeMusicSyncToggle = GameToolbox::createToggleButton(
 			"Practice Music Sync",
 			menu_selector(GameOptionsLayer::onPracticeMusicSync),
 			// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 			m_baseGameLayer->m_practiceMusicSync,
 			// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-			m_buttonMenu, ccp(118, 87), this,
-			this, 0.7f, 0.5f,
+			m_buttonMenu, ccp(96, 87), this,
+			this, 0.8f, 0.5f,
 			m_maxLabelWidth, ccp(8, 0),
 			"bigFont.fnt", false, 0,
 			nullptr
@@ -190,7 +209,19 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			addToggle(" ", placeholderToggleTag, false, ""); // DO NOT ADD DESCRIPTION. OTHERWISE THAT'S ONE MORE BUTTON TO GETCHILDBYTAG AND THAT WILL BE A FUCKING PAIN. --raydeeux
 			
 			m_fields->fuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(placeholderToggleTag));
-			if (m_fields->fuckingStupidPlaceholderToggle) m_fields->fuckingStupidPlaceholderToggle->setScale(0);
+			if (m_fields->fuckingStupidPlaceholderToggle) {
+				m_fields->fuckingStupidPlaceholderToggle->setID("if-you-activate-this-other-placeholder-the-game-will-crash"_spr);
+				m_fields->fuckingStupidPlaceholderToggle->setScale(0);
+				m_fields->fuckingStupidPlaceholderToggle->setEnabled(false);
+				m_fields->fuckingStupidPlaceholderToggle->m_pListener = nullptr;
+				m_fields->fuckingStupidPlaceholderToggle->m_notClickable = true;
+				m_fields->fuckingStupidPlaceholderToggle->m_pfnSelector = nullptr;
+				m_fields->fuckingStupidPlaceholderToggle->m_onButton->removeMeAndCleanup();
+				m_fields->fuckingStupidPlaceholderToggle->m_onButton = nullptr;
+				m_fields->fuckingStupidPlaceholderToggle->m_offButton->removeMeAndCleanup();
+				m_fields->fuckingStupidPlaceholderToggle->m_offButton = nullptr;
+				m_fields->fuckingStupidPlaceholderToggle->removeAllChildrenWithCleanup(true);
+			}
 
 			// lowkey i don't know how the hell we're gonna go about hiding the label. --raydeeux
 			m_fields->fuckingStupidIgnoreDamageToggle = GameToolbox::createToggleButton(
@@ -199,12 +230,13 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, ccp(310, 87), this,
+				m_buttonMenu, ccp(297, 87), this,
 				this, 0.7f, 0.5f,
 				m_maxLabelWidth, ccp(0, 0),
 				"goldFont.fnt", false, 0,
 				nullptr
 			);
+			m_fields->fuckingStupidIgnoreDamageToggle->setPositionX(32.f); // brute force!
 
 			// SAVE FOR DEBUGGING PURPOSES --raydeeux
 			/*
@@ -316,20 +348,39 @@ so a lot of node tagging and node casting had to happen.
 class $modify(GJOptionsLayer) {
 	void goToPage(int page) {
 		GJOptionsLayer::goToPage(page);
-		if (this->getTag() != 20260219 || !typeinfo_cast<CCBool*>(this->getUserObject("options-api"_spr)) || !static_cast<CCBool*>(this->getUserObject("options-api"_spr))->getValue() || !typeinfo_cast<GameOptionsLayer*>(this)) return;
+		if (this->getTag() != 20260219 || !this->getUserFlag("modified-by-options-api"_spr) || !typeinfo_cast<CCBool*>(this->getUserObject("options-api"_spr)) || !static_cast<CCBool*>(this->getUserObject("options-api"_spr))->getValue() || !typeinfo_cast<GameOptionsLayer*>(this)) return;
 
 		OAPIGameOptionsLayer* fooBar = reinterpret_cast<OAPIGameOptionsLayer*>(this);
-		if (fooBar->m_baseGameLayer->m_level->m_levelType != GJLevelType::Editor) return;
 
 		auto fields = fooBar->m_fields.self();
 		if (!fields) return;
-		
-		if (auto node = fooBar->getChildByType<CCLabelBMFont>(0); node && static_cast<std::string>(node->getString()) == "Ignore Damage" && static_cast<std::string>(node->getFntFile()) == "goldFont.fnt") {
-			node->setScale(page == 0 ? .5f : 0);
+
+		for (CCNode* child : this->getChildrenExt()) {
+			if (!child) continue;
+			if (child->getUserFlag("conditionally-hidden-label"_spr)) {
+				child->setVisible(page == 0);
+				continue;
+			}
+			CCLabelBMFont* node = typeinfo_cast<CCLabelBMFont*>(child);
+			if (!node) continue;
+			if ((static_cast<std::string>(node->getString()) == "Ignore Damage" && static_cast<std::string>(node->getFntFile()) == "goldFont.fnt") || (static_cast<std::string>(node->getString()) == "Practice Music Sync" && static_cast<std::string>(node->getFntFile()) == "bigFont.fnt")) {
+				if (!node->getUserFlag("conditionally-hidden-label"_spr)) node->setUserFlag("conditionally-hidden-label"_spr);
+				node->setVisible(page == 0);
+			}
 		}
 
+		if (auto node = fields->fuckingStupidPracticeMusicSyncToggle) node->setScale(page == 0 ? 1 : 0);
 		if (auto node = fields->fuckingStupidIgnoreDamageToggle) node->setScale(page == 0 ? 1 : 0);
-		if (auto node = fields->fuckingStupidPlaceholderToggle) node->setScale(0);
+		if (auto node = fields->yetAnotherFuckingStupidPlaceholderToggle) {
+			node->setScale(0);
+			node->m_pListener = nullptr;
+			node->m_pfnSelector = nullptr;
+		}
+		if (auto node = fields->fuckingStupidPlaceholderToggle) {
+			node->setScale(0);
+			node->m_pListener = nullptr;
+			node->m_pfnSelector = nullptr;
+		}
 	}
 };
 
