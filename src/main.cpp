@@ -159,6 +159,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		this->m_offset = 32.f;
 
 		// full recreation to add descriptions and fix the stupid Practice Music Sync toggle
+		// ok so it's dawned onto me that this whole shebang was so nin can add descriptions wtfrick
 		addToggle("Auto-Retry", 1, GameManager::get()->getGameVariable("0026"), "Instantly start a new attempt instead of showing the restart menu.");
 		addToggle("Auto-Checkpoints", 2, GameManager::get()->getGameVariable("0027"), "Automatically place checkpoints occasionally.");
 		addToggle("Show Progress Bar", 3, GameManager::get()->m_showProgressBar, "Show the progress bar at the top of the screen.");
@@ -169,7 +170,19 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		addToggle("Disable Checkpoints", 8, GameManager::get()->getGameVariable("0146"), "Disable platformer mode checkpoints and always respawn from the beginning. (Platformer Mode only)");
 		addToggle("Show Hitboxes", 9, GameManager::get()->getGameVariable("0166"), "Shows hitboxes while in practice mode.");
 		addToggle("Hitbox On Death", 11, GameManager::get()->getGameVariable("0179"), "Shows hitboxes upon death in both normal and practice mode.");
-		addToggle("Practice Music Sync", 10, m_baseGameLayer->m_practiceMusicSync, "Use the level's song instead of the normal practice mode song.");
+		// addToggle("Practice Music Sync", 10, m_baseGameLayer->m_practiceMusicSync, "Use the level's song instead of the normal practice mode song.");
+		GameToolbox::createToggleButton(
+			"Practice Music Sync",
+			menu_selector(GameOptionsLayer::onPracticeMusicSync),
+			// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
+			m_baseGameLayer->m_practiceMusicSync,
+			// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
+			m_buttonMenu, ccp(118, 87), this,
+			this, 0.7f, 0.5f,
+			m_maxLabelWidth, ccp(8, 0),
+			"bigFont.fnt", false, 0,
+			nullptr
+		);
 
 		if (m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor) {
 			// dummy toggle to trick the UI
@@ -181,15 +194,15 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			// lowkey i don't know how the hell we're gonna go about hiding the label. --raydeeux
 			m_fields->fuckingStupidIgnoreDamageToggle = GameToolbox::createToggleButton(
-				"Ignore Damage", 
-				menu_selector(OAPIGameOptionsLayer::onIgnoreDamage), 
+				"Ignore Damage",
+				menu_selector(OAPIGameOptionsLayer::onIgnoreDamage),
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
-				GameManager::get()->getGameVariable("0173"), 
+				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, ccp(390, 87), this,
-				this, 0.7f, 0.5f, 
-				m_maxLabelWidth, ccp(9, 0), 
-				"goldFont.fnt", false, 0, 
+				m_buttonMenu, ccp(310, 87), this,
+				this, 0.7f, 0.5f,
+				m_maxLabelWidth, ccp(0, 0),
+				"goldFont.fnt", false, 0,
 				nullptr
 			);
 
