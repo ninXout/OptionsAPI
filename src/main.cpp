@@ -158,8 +158,8 @@ $execute {
 
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
 	CCPoint addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
-		if (!this->m_buttonMenu) return;\
-		addToggle(" ", tag, false, desc);\
+		if (!this->m_buttonMenu) return ccp(-20260716, -20260716);\
+		addToggle(" ", tag, false, fmt::format("{}", desc).c_str());\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
@@ -219,7 +219,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_preDoubles) {
-			CCPoint dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCPoint dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
@@ -442,7 +442,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_midDoubles) {
-			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
@@ -578,7 +578,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_editDoubles) {
-			CCPoint dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCPoint dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
