@@ -4,6 +4,4 @@ API mod that allows developers to add their own settings to some of the settings
 
 ## This mod has little to none of its own features. If you didn't download this with a mod that uses it, this mod will not do anything.
 
-If you are looking for a mod that does use this API (with a similar logo), check out [MoreLevelOptions](mod:ninxout.more_level_options)
-
-<mod:ninxout.more_level_options>
+Incidentally, this mod also "unlocks" the Practice Music Sync option, in that actually enforcing the unlock requirements is not worth the effort given the scope and purpose of this mod.
