@@ -349,7 +349,7 @@ so a lot of node tagging and node casting had to happen.
 */
 #include <Geode/modify/GJOptionsLayer.hpp>
 class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
-	void stupidSongAndDance(CCNode* parent) {
+	void stupidSongAndDance(CCNode* parent, int page) {
 		if (!parent) return;
 		for (CCNode* child : parent->getChildrenExt()) {
 			if (!child) continue;
@@ -374,8 +374,8 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		auto fields = fooBar->m_fields.self();
 		if (!fields) return;
 
-		OAPIGJOptionsLayer::stupidSongAndDance(this->m_mainLayer);
-		OAPIGJOptionsLayer::stupidSongAndDance(this->layerForPage(0));
+		OAPIGJOptionsLayer::stupidSongAndDance(this->m_mainLayer, page);
+		OAPIGJOptionsLayer::stupidSongAndDance(this->layerForPage(0), page);
 
 		if (auto node = fields->fuckingStupidPracticeMusicSyncToggle) node->setScale(page == 0 ? 1 : 0);
 		if (auto node = fields->fuckingStupidIgnoreDamageToggle) node->setScale(page == 0 ? 1 : 0);
