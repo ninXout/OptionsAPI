@@ -50,7 +50,7 @@ using EditDoubleCallback = std::function<void(double)>;
 using EditInitialCallbackDouble = std::function<double()>;
 
 #define DOUBLEEVENT(evname, changeInDouble, call) \
-class Add##evname##DoubleEvent : public Event<Add##evname##ToggleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+class Add##evname##DoubleEvent : public Event<Add##evname##DoubleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
 public: \
     using Event::Event; \
     std::string m_name; \
