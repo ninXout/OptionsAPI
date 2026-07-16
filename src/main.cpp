@@ -156,13 +156,36 @@ $execute {
 // so the tags in editoroptionslayer are all sorts of fucked
 #define EDIT_TOGGLES_START 200
 
+#define DECLARE_DUMMY_CHECKBOX_FUNCTION\
+	CCPoint addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
+		if (!this->m_buttonMenu) return;\
+		addToggle(" ", tag, false, desc);\
+		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
+			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
+			placeholder->setScale(0);\
+			placeholder->setEnabled(false);\
+			placeholder->m_pListener = nullptr;\
+			placeholder->m_notClickable = true;\
+			placeholder->m_pfnSelector = nullptr;\
+			placeholder->m_onButton->removeMeAndCleanup();\
+			placeholder->m_onButton = nullptr;\
+			placeholder->m_offButton->removeMeAndCleanup();\
+			placeholder->m_offButton = nullptr;\
+			placeholder->removeAllChildrenWithCleanup(true);\
+			return placeholder->getPosition();\
+		}\
+		return ccp(-20260716, -20260716);\
+	}
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
-class $modify(GameLevelOptionsLayer) {
+class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", 4000)) {
 			geode::log::warn("Failed to set hook priority for GameLevelOptionsLayer::setupOptions");
 		}
 	}
+
+	DECLARE_DUMMY_CHECKBOX_FUNCTION
 
 	void setupOptions() {
 		this->setUserFlag("use-pretoggles"_spr, true);
@@ -192,6 +215,13 @@ class $modify(GameLevelOptionsLayer) {
 
 		for (auto [k, v] : g_preToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), fmt::format("{}", v.m_description).c_str());
+			index++;
+		}
+
+		for (auto [l, w] : g_preDoubles) {
+			CCPoint dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCMenu* container = CCMenu::create();
+			// impl custom node perhaps
 			index++;
 		}
 	}
@@ -236,6 +266,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		if (index > 1) pos.y -= floorf(index / 2.f) * this->m_gap;
 		return pos;
 	}
+
+	DECLARE_DUMMY_CHECKBOX_FUNCTION
 
 	void setupOptions() {
 		this->setTag(20260219);
@@ -408,6 +440,13 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_baseGameLayer), fmt::format("{}", v.m_description).c_str());
 			index++;
 		}
+
+		for (auto [l, w] : g_midDoubles) {
+			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCMenu* container = CCMenu::create();
+			// impl custom node perhaps
+			index++;
+		}
 	}
 
 	void didToggle(int opt) {
@@ -521,6 +560,8 @@ class $modify(EditorOptionsLayer) {
 		}
 	}
 
+	DECLARE_DUMMY_CHECKBOX_FUNCTION
+
 	void setupOptions() {
 		// no recreation needed here! everything is well done in EditorOptionsLayer
 		EditorOptionsLayer::setupOptions();
@@ -533,6 +574,13 @@ class $modify(EditorOptionsLayer) {
 
 		for (auto [k, v] : g_editToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(), fmt::format("{}", v.m_description).c_str());
+			index++;
+		}
+
+		for (auto [l, w] : g_editDoubles) {
+			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCMenu* container = CCMenu::create();
+			// impl custom node perhaps
 			index++;
 		}
 	}
