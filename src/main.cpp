@@ -41,7 +41,7 @@ $execute {
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				fmt::format("{}", desc)
+				geode::utils::string::contains(desc, mod->getName()) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		}
 		return ListenerResult::Stop;
@@ -55,7 +55,7 @@ $execute {
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				fmt::format("{}", desc)
+				geode::utils::string::contains(desc, mod->getName()) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		}
 		return ListenerResult::Stop;
@@ -69,7 +69,7 @@ $execute {
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				fmt::format("{}", desc)
+				geode::utils::string::contains(desc, mod->getName()) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		}
 		return ListenerResult::Stop;
