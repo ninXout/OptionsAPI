@@ -409,11 +409,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 	}
 	void onInfo(CCObject* sender) {
-		if (!sender || sender-getTag() < 1) return GJOptionsLayer::onInfo(sender);
-		if (!this->setUserFlag("use-edittoggles"_spr) && !this->setUserFlag("use-midtoggles"_spr) && !this->setUserFlag("use-pretoggles"_spr)) return GJOptionsLayer::onInfo(sender);
+		if (!sender || sender->getTag() < 1) return GJOptionsLayer::onInfo(sender);
+		if (!this->getUserFlag("use-edittoggles"_spr) && !this->getUserFlag("use-midtoggles"_spr) && !this->getUserFlag("use-pretoggles"_spr)) return GJOptionsLayer::onInfo(sender);
 
-		const int senderTag = sender-getTag();
-		if (this->setUserFlag("use-edittoggles"_spr)) {
+		const int senderTag = sender->getTag();
+		if (this->getUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
 			const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
@@ -423,7 +423,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			info->show();
 			return;
 		}
-		if (this->setUserFlag("use-midtoggles"_spr)) {
+		if (this->getUserFlag("use-midtoggles"_spr)) {
 			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
 			const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
@@ -433,7 +433,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			info->show();
 			return;
 		}
-		if (this->setUserFlag("use-pretoggles"_spr)) {
+		if (this->getUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
 			const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
