@@ -30,7 +30,7 @@ struct EditorToggleSetting {
 struct PreDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJGameLevel*)> m_callback;
+	std::function<void(GJGameLevel*, double)> m_callback;
 	std::function<double(GJGameLevel*)> m_initial;
 	std::string m_description;
 };
@@ -38,7 +38,7 @@ struct PreDoubleSetting {
 struct MidDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJBaseGameLayer*)> m_callback;
+	std::function<void(GJBaseGameLayer*, double)> m_callback;
 	std::function<double(GJBaseGameLayer*)> m_initial;
 	std::string m_description;
 };
@@ -46,7 +46,7 @@ struct MidDoubleSetting {
 struct EditorDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void()> m_callback;
+	std::function<void(double)> m_callback;
 	std::function<double()> m_initial;
 	std::string m_description;
 };
