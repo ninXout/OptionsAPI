@@ -32,46 +32,44 @@ std::map<std::string, MidToggleSetting> g_midToggles;
 std::map<std::string, EditorToggleSetting> g_editToggles;
 
 $execute {
-// $on_mod(Loaded) {
-	// new EventListener<EventFilter<AddPreToggleEvent>>(+[](AddPreToggleEvent* ev) {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod) {
+		if (mod && !name.empty()) {
 			g_preToggles[fmt::format("{}/{}", modID, name)] = PreToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
-		}
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	preToggleListener.leak();
-	// new EventListener<EventFilter<AddMidToggleEvent>>(+[](AddMidToggleEvent* ev) {
+
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod) {
+		if (mod && !name.empty()) {
 			g_midToggles[fmt::format("{}/{}", modID, name)] = MidToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
-		}
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	midToggleListener.leak();
-	// new EventListener<EventFilter<AddEditToggleEvent>>(+[](AddEditToggleEvent* ev) {
+
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod) {
+		if (mod && !name.empty()) {
 			g_editToggles[fmt::format("{}/{}", modID, name)] = EditorToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
-		}
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	editToggleListener.leak();
@@ -92,7 +90,6 @@ $execute {
 class $modify(GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", 4000)) {
-			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
 			geode::log::warn("Failed to set hook priority for GameLevelOptionsLayer::setupOptions");
 		}
 	}
@@ -155,7 +152,6 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("GameOptionsLayer::setupOptions", 4000)) {
-			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
 			geode::log::warn("Failed to set hook priority for GameOptionsLayer::setupOptions");
 		}
 	}
@@ -451,7 +447,6 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 class $modify(EditorOptionsLayer) {
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
-			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
 			geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
 		}
 	}
