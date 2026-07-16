@@ -1,3 +1,7 @@
+# 1.0.6
+- Silly Fixes For Editor Toggles Which Thankfully No One Has Used Ever Up Until This Point
+- Smaller Changes To How Information About Toggles Added By Other Mods Is Displayed
+
 # 1.0.5
 - The Silliest Fix Of All Time: Repositioning Toggles For Practice Music Sync And Ignore Damage
 

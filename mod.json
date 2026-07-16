@@ -8,7 +8,7 @@
 	},
 	"id": "ninxout.options_api",
 	"name": "Options API",
-	"version": "v1.0.5",
+	"version": "v1.0.6",
 	"developers": ["ninXout", "RayDeeUx"],
 	"description": "API for mods to add toggles to vanilla GD menus with greater control.",
 	"early-load": true,
