@@ -47,7 +47,7 @@ struct EditorDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
 	std::function<void()> m_callback;
-	std::function<doublel()> m_initial;
+	std::function<double()> m_initial;
 	std::string m_description;
 };
 
