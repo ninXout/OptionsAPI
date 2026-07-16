@@ -348,17 +348,10 @@ so a lot of node tagging and node casting had to happen.
 --raydeeux
 */
 #include <Geode/modify/GJOptionsLayer.hpp>
-class $modify(GJOptionsLayer) {
-	void goToPage(int page) {
-		GJOptionsLayer::goToPage(page);
-		if (this->getTag() != 20260219 || !this->getUserFlag("modified-by-options-api"_spr) || !typeinfo_cast<CCBool*>(this->getUserObject("options-api"_spr)) || !static_cast<CCBool*>(this->getUserObject("options-api"_spr))->getValue() || !typeinfo_cast<GameOptionsLayer*>(this)) return;
-
-		OAPIGameOptionsLayer* fooBar = reinterpret_cast<OAPIGameOptionsLayer*>(this);
-
-		auto fields = fooBar->m_fields.self();
-		if (!fields) return;
-
-		for (CCNode* child : this->getChildrenExt()) {
+class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
+	void stupidSongAndDance(CCNode* parent) {
+		if (!parent) return;
+		for (CCNode* child : parent->getChildrenExt()) {
 			if (!child) continue;
 			if (child->getUserFlag("conditionally-hidden-label"_spr)) {
 				child->setVisible(page == 0);
@@ -371,6 +364,18 @@ class $modify(GJOptionsLayer) {
 				node->setVisible(page == 0);
 			}
 		}
+	}
+	void goToPage(int page) {
+		GJOptionsLayer::goToPage(page);
+		if (this->getTag() != 20260219 || !this->getUserFlag("modified-by-options-api"_spr) || !typeinfo_cast<CCBool*>(this->getUserObject("options-api"_spr)) || !static_cast<CCBool*>(this->getUserObject("options-api"_spr))->getValue() || !typeinfo_cast<GameOptionsLayer*>(this)) return;
+
+		OAPIGameOptionsLayer* fooBar = reinterpret_cast<OAPIGameOptionsLayer*>(this);
+
+		auto fields = fooBar->m_fields.self();
+		if (!fields) return;
+
+		OAPIGJOptionsLayer::stupidSongAndDance(this->m_mainLayer);
+		OAPIGJOptionsLayer::stupidSongAndDance(this->layerForPage(0));
 
 		if (auto node = fields->fuckingStupidPracticeMusicSyncToggle) node->setScale(page == 0 ? 1 : 0);
 		if (auto node = fields->fuckingStupidIgnoreDamageToggle) node->setScale(page == 0 ? 1 : 0);
