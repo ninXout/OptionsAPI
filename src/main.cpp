@@ -235,7 +235,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(yetAnotherPlaceholderToggleTag + 1) - {-48.f, 0.f}, this,
+				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(yetAnotherPlaceholderToggleTag + 1) + {-48.f, 0.f}, this,
 				this->layerForPage(0), 0.7f, 0.5f, this->m_maxLabelWidth,
 				ccp(8, 0), "goldFont.fnt", false, 0, nullptr
 			);
