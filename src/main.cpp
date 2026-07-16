@@ -180,7 +180,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		addToggle("Hitbox On Death", 11, GameManager::get()->getGameVariable("0179"), "Shows hitboxes upon death in both normal and practice mode.");
 
 		constexpr int yetAnotherPlaceholderToggleTag = 10;
-		addToggle(" ", yetAnotherPlaceholderToggleTag, false, "Use the level's song instead of the normal practice mode song."); // DO NOT ADD DESCRIPTION. OTHERWISE THAT'S ONE MORE BUTTON TO GETCHILDBYTAG AND THAT WILL BE A FUCKING PAIN. --raydeeux
+		addToggle(" ", yetAnotherPlaceholderToggleTag, false, "Use the level's song instead of the normal practice mode song."); // add description since that's the most vanilla approach to ensure correct positioning and ninxout wants descriptions for everything!!!!! --raydeeux
 		m_fields->yetAnotherFuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(yetAnotherPlaceholderToggleTag));
 		if (m_fields->yetAnotherFuckingStupidPlaceholderToggle) {
 			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setID("if-you-activate-this-placeholder-the-game-will-crash"_spr);
@@ -211,8 +211,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		if (m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor) {
 			// dummy toggle to trick the UI
 			constexpr int placeholderToggleTag = 0;
-			addToggle(" ", placeholderToggleTag, false, ""); // DO NOT ADD DESCRIPTION. OTHERWISE THAT'S ONE MORE BUTTON TO GETCHILDBYTAG AND THAT WILL BE A FUCKING PAIN. --raydeeux
-			
+			addToggle(" ", placeholderToggleTag, false, "Noclip.\n\n<c_>This option will break slope physics; please use Noclip from mod menus instead.</c>"); // add description since that's the most vanilla approach to ensure correct positioning and ninxout wants descriptions for everything!!!!! --raydeeux
+
 			m_fields->fuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(placeholderToggleTag));
 			if (m_fields->fuckingStupidPlaceholderToggle) {
 				m_fields->fuckingStupidPlaceholderToggle->setID("if-you-activate-this-other-placeholder-the-game-will-crash"_spr);
@@ -235,7 +235,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(yetAnotherPlaceholderToggleTag + 1), this,
+				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(yetAnotherPlaceholderToggleTag + 1) - {-48.f, 0.f}, this,
 				this->layerForPage(0), 0.7f, 0.5f, this->m_maxLabelWidth,
 				ccp(8, 0), "goldFont.fnt", false, 0, nullptr
 			);
