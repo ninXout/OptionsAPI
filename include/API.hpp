@@ -49,6 +49,7 @@ using MidInitialCallbackDouble = std::function<double(GJBaseGameLayer*)>;
 using EditDoubleCallback = std::function<void(double)>;
 using EditInitialCallbackDouble = std::function<double()>;
 
+// THE THING TO DO: ADD MIN AND MAX SPECIFIERS
 #define DOUBLEEVENT(evname, changeInDouble, call) \
 class Add##evname##DoubleEvent : public Event<Add##evname##DoubleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
 public: \

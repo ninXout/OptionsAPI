@@ -482,6 +482,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			this->m_buttonMenu->addChild(container);
 			container->setPosition(dummyCheckboxPosition);
 			container->setAnchorPoint({container->getContentWidth() * .1f, .5f});
+			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 
 			index++;
 		}
