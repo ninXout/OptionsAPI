@@ -27,9 +27,37 @@ struct EditorToggleSetting {
 	std::string m_description;
 };
 
+struct PreDoubleSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJGameLevel*)> m_callback;
+	std::function<double(GJGameLevel*)> m_initial;
+	std::string m_description;
+};
+
+struct MidDoubleSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJBaseGameLayer*)> m_callback;
+	std::function<double(GJBaseGameLayer*)> m_initial;
+	std::string m_description;
+};
+
+struct EditorDoubleSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void()> m_callback;
+	std::function<doublel()> m_initial;
+	std::string m_description;
+};
+
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
 std::map<std::string, EditorToggleSetting> g_editToggles;
+
+std::map<std::string, PreDoubleSetting> g_preDoubles;
+std::map<std::string, MidDoubleSetting> g_midDoubles;
+std::map<std::string, EditorDoubleSetting> g_editDoubles;
 
 $execute {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
@@ -73,6 +101,48 @@ $execute {
 		return ListenerResult::Stop;
 	});
 	editToggleListener.leak();
+
+	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<double(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			g_preDoubles[fmt::format("{}/{}", modID, name)] = PreDoubleSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback,
+				initialValue,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+			};
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	preDoubleListener.leak();
+
+	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<double(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			g_midDoubles[fmt::format("{}/{}", modID, name)] = MidDoubleSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback,
+				initialValue,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+			};
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	midDoubleListener.leak();
+
+	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<double()> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			g_editDoubles[fmt::format("{}/{}", modID, name)] = EditorDoubleSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback,
+				initialValue,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+			};
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	editDoubleListener.leak();
 }
 
 // remove ifdefs once desktop also gets CBF overrides --raydeeux
