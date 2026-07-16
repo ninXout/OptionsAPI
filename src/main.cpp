@@ -102,7 +102,7 @@ $execute {
 	});
 	editToggleListener.leak();
 
-	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<double(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_preDoubles[fmt::format("{}/{}", modID, name)] = PreDoubleSetting{
 				fmt::format("{}", name),
@@ -116,7 +116,7 @@ $execute {
 	});
 	preDoubleListener.leak();
 
-	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<double(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_midDoubles[fmt::format("{}/{}", modID, name)] = MidDoubleSetting{
 				fmt::format("{}", name),
@@ -130,7 +130,7 @@ $execute {
 	});
 	midDoubleListener.leak();
 
-	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<double()> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_editDoubles[fmt::format("{}/{}", modID, name)] = EditorDoubleSetting{
 				fmt::format("{}", name),
