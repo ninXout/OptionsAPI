@@ -203,8 +203,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 			m_baseGameLayer->m_practiceMusicSync,
 			// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-			m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(11), this,
-			this, 0.8f, this->m_maxLabelScale, this->m_maxLabelWidth,
+			m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(10), this,
+			this->m_mainLayer, 0.8f, this->m_maxLabelScale, this->m_maxLabelWidth,
 			ccp(8, 0), "bigFont.fnt", false, 0, nullptr
 		);
 
@@ -235,8 +235,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(12), this,
-				this, 0.7f, this->m_maxLabelScale, this->m_maxLabelWidth,
+				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(11), this,
+				this->layerForPage(0), 0.7f, this->m_maxLabelScale, this->m_maxLabelWidth,
 				ccp(8, 0), "goldFont.fnt", false, 0, nullptr
 			);
 			m_fields->fuckingStupidIgnoreDamageToggle->setPositionX(32.f); // brute force!
