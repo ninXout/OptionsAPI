@@ -553,7 +553,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 };
 
 #include <Geode/modify/EditorOptionsLayer.hpp>
-class $modify(EditorOptionsLayer) {
+class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
 			geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
@@ -578,7 +578,7 @@ class $modify(EditorOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_editDoubles) {
-			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
+			CCPoint dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", v.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
