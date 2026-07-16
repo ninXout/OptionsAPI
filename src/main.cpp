@@ -77,6 +77,16 @@ $execute {
 	editToggleListener.leak();
 }
 
+// remove ifdefs once desktop also gets CBF overrides --raydeeux
+#ifdef GEODE_IS_DESKTOP
+#define PRE_TOGGLES_START 3
+#endif
+#ifdef GEODE_IS_MOBILE
+#define PRE_TOGGLES_START 5
+#endif
+#define MID_TOGGLES_START 12
+#define EDIT_TOGGLES_START 26
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -87,6 +97,11 @@ class $modify(GameLevelOptionsLayer) {
 	}
 
 	void setupOptions() {
+		this->setUserFlag("use-pretoggles"_spr, true);
+
+		this->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+		this->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+
 		auto winSize = CCDirector::get()->getWinSize();
 
 		// do this to add descriptions to low detail mode and disable shake
@@ -105,7 +120,7 @@ class $modify(GameLevelOptionsLayer) {
 		else if (auto disableCBF = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(4))) disableCBF->m_notClickable = 1;
 		#endif
 
-		int index = GEODE_DESKTOP(3) GEODE_MOBILE(5); // remove ifdefs once desktop also gets CBF overrides --raydeeux
+		int index = PRE_TOGGLES_START;
 
 		for (auto [k, v] : g_preToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), fmt::format("{}", v.m_description).c_str());
@@ -122,7 +137,7 @@ class $modify(GameLevelOptionsLayer) {
 				return GameLevelOptionsLayer::didToggle(opt);
 			#endif
 			default:
-				return std::next(g_preToggles.begin(), opt - GEODE_DESKTOP(3) GEODE_MOBILE(5))->second.m_callback(m_level); // this might be stupid idk
+				return std::next(g_preToggles.begin(), opt - PRE_TOGGLES_START)->second.m_callback(m_level); // this might be stupid idk
 		}
 	}
 };
@@ -159,6 +174,10 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		this->setTag(20260219);
 		this->setUserObject("options-api"_spr, CCBool::create(true));
 		this->setUserFlag("modified-by-options-api"_spr);
+		this->setUserFlag("use-midtoggles"_spr, true);
+
+		this->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+		this->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
 
 		// robtop i hate you so f!@$%^&*(*&^%$#$%^&*ing much right now --raydeeux
 		this->m_togglesPerPage = 12;
@@ -316,7 +335,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		pracUI->m_baseScale = 0.7f;
 		m_buttonMenu->addChild(pracUI);
 
-		int index = 12;
+		int index = MID_TOGGLES_START;
 
 		for (auto [k, v] : g_midToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_baseGameLayer), fmt::format("{}", v.m_description).c_str());
@@ -333,7 +352,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			case 10:
 				return onPracticeMusicSync(nullptr);
 			default:
-				return std::next(g_midToggles.begin(), opt - 12)->second.m_callback(m_baseGameLayer); // this might be stupid idk
+				return std::next(g_midToggles.begin(), opt - MID_TOGGLES_START)->second.m_callback(m_baseGameLayer); // this might be stupid idk
 		}
 	}
 };
@@ -389,6 +408,42 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			node->m_pfnSelector = nullptr;
 		}
 	}
+	void onInfo(CCObject* sender) {
+		if (!sender || sender-getTag() < 1) return GJOptionsLayer::onInfo(sender);
+		if (!this->setUserFlag("use-edittoggles"_spr) && !this->setUserFlag("use-midtoggles"_spr) && !this->setUserFlag("use-pretoggles"_spr)) return GJOptionsLayer::onInfo(sender);
+
+		const int senderTag = sender-getTag();
+		if (this->setUserFlag("use-edittoggles"_spr)) {
+			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
+			const auto& info = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
+			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			info->m_noElasticity = true;
+			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+			info->show();
+			return;
+		}
+		if (this->setUserFlag("use-midtoggles"_spr)) {
+			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
+			const auto& info = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
+			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			info->m_noElasticity = true;
+			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+			info->show();
+			return;
+		}
+		if (this->setUserFlag("use-pretoggles"_spr)) {
+			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
+			const auto& info = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
+			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			info->m_noElasticity = true;
+			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+			info->show();
+			return;
+		}
+	}
 };
 
 #include <Geode/modify/EditorOptionsLayer.hpp>
@@ -403,8 +458,12 @@ class $modify(EditorOptionsLayer) {
 	void setupOptions() {
 		// no recreation needed here! everything is well done in EditorOptionsLayer
 		EditorOptionsLayer::setupOptions();
+		this->setUserFlag("use-edittoggles"_spr, true);
 
-		int index = 26; // bump this by 1 because rob added "Static Trace Arrows", "0181" --raydeeux
+		this->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+		this->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+
+		int index = EDIT_TOGGLES_START; // bump this by 1 because rob added "Static Trace Arrows", "0181" --raydeeux
 
 		for (auto [k, v] : g_editToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(), fmt::format("{}", v.m_description).c_str());
@@ -421,7 +480,7 @@ class $modify(EditorOptionsLayer) {
 			case 21: case 22: case 23: case 24: case 25: // highkey i think rob only added 23 toggles in 2.2082, but anything for consistency, i guess... --raydeeux
 				return EditorOptionsLayer::didToggle(opt);
 			default:
-				return std::next(g_editToggles.begin(), opt - 26)->second.m_callback(); // this might be stupid idk
+				return std::next(g_editToggles.begin(), opt - EDIT_TOGGLES_START)->second.m_callback(); // this might be stupid idk
 		}
 	}
 };
