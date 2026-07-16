@@ -85,13 +85,13 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     void addEditorLevelSetting(std::string_view name, std::string_view id, std::function<void()> callback, std::function<T()> initialValue, std::string_view desc);
 
     template <typename T>
-    void addPreLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJGameLevel*)> callback, std::function<T(GJGameLevel*, T)> initialValue, std::string_view desc);
+    void addPreLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJGameLevel*, T)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
 
     template <typename T>
-    void addMidLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJBaseGameLayer*)> callback, std::function<T(GJBaseGameLayer*, T)> initialValue, std::string_view desc);
+    void addMidLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJBaseGameLayer*, T)> callback, std::function<T(GJBaseGameLayer*)> initialValue, std::string_view desc);
 
     template <typename T>
-    void addEditorLevelSettingReactive(std::string_view name, std::string_view id, std::function<void()> callback, std::function<T(T)> initialValue, std::string_view desc);
+    void addEditorLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(T)> callback, std::function<T()> initialValue, std::string_view desc);
 
     template <>
     void addPreLevelSetting<bool>(std::string_view name, std::string_view id, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc) {
