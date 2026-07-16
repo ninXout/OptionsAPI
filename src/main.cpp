@@ -145,6 +145,25 @@ $execute {
 	editDoubleListener.leak();
 }
 
+// keep for debugging
+$on_game(Loaded) {
+	Mod* mod = Mod::get();
+	std::string desc;
+	g_midDoubles["dummy-double-setting"_spr] = MidDoubleSetting{
+		"dummy double setting",
+		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+		[](GJBaseGameLayer* gjbgl, double value) {
+			log::info("gjbgl: {}", gjbgl != nullptr);
+			log::info("value: {}", value);
+		},
+		[](GJBaseGameLayer* gjbgl) {
+			log::info("gjbgl: {}", gjbgl != nullptr);
+			return 0.f;
+		},
+		desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+	};
+}
+
 // remove ifdefs once desktop also gets CBF overrides --raydeeux
 #ifdef GEODE_IS_DESKTOP
 #define PRE_TOGGLES_START 3
@@ -444,7 +463,26 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		for (auto [l, w] : g_midDoubles) {
 			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
-			// impl custom node perhaps
+			container->setContentWidth(this->m_maxLabelWidth);
+
+			geode::TextInput* inputBox = geode::TextInput::create(this->m_maxLabelWidth * .25f, w.m_name);
+			inputBox->setCommonFilter(CommonFilter::Float);
+			inputBox->setCallback([gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback](const std::string& input) {
+				// swap for actual declared max and mins
+				callback(gjbgl, std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(-1.f), -1.f, 200.f));
+			});
+
+			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
+
+			container->addChild(inputBox);
+			container->addChild(label);
+
+			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f));
+
+			this->m_buttonMenu->addChild(container);
+			container->setPosition(dummyCheckboxPosition);
+			container->setAnchorPoint({container->getContentWidth() * .1f, .5f});
+
 			index++;
 		}
 	}
