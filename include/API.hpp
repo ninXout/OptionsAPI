@@ -40,7 +40,41 @@ TOGGLEEVENT(Pre, PreToggleCallback, PreInitialCallback)
 TOGGLEEVENT(Mid, MidToggleCallback, MidInitialCallback)
 TOGGLEEVENT(Edit, EditToggleCallback, EditInitialCallback)
 
-namespace OptionsAPI { // TODO: expand to float, int, and std::string
+using PreDoubleCallback = std::function<void(GJGameLevel*)>;
+using PreInitialCallbackDouble = std::function<double(GJGameLevel*)>;
+
+using MidDoubleCallback = std::function<void(GJBaseGameLayer*)>;
+using MidInitialCallbackDouble = std::function<double(GJBaseGameLayer*)>;
+
+using EditDoubleCallback = std::function<void()>;
+using EditInitialCallbackDouble = std::function<double()>;
+
+#define DOUBLEEVENT(evname, changeInDouble, call) \
+class Add##evname##DoubleEvent : public Event<Add##evname##ToggleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+public: \
+    using Event::Event; \
+    std::string m_name; \
+    std::string m_id; \
+    changeInDouble m_callback; \
+    call m_initialValue; \
+    std::string m_description; \
+    geode::Mod* m_mod; \
+ \
+    Add##evname##DoubleEvent(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_description(desc), m_mod(mod) {}; \
+ \
+    READONLY(m_name, Name, std::string); \
+    READONLY(m_id, ID, std::string); \
+    READONLY(m_callback, Callback, changeInDouble); \
+    READONLY(m_initialValue, InitialVal, call); \
+    READONLY(m_description, Desc, std::string); \
+    READONLY(m_mod, Mod, geode::Mod*); \
+};
+
+DOUBLEEVENT(Pre, PreDoubleCallback, PreInitialCallbackDouble)
+DOUBLEEVENT(Mid, MidDoubleCallback, MidInitialCallbackDouble)
+DOUBLEEVENT(Edit, EditDoubleCallback, EditInitialCallbackDouble)
+
+namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <typename T>
     void addPreLevelSetting(std::string_view name, std::string_view id, std::function<void(GJGameLevel*)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
 
@@ -63,5 +97,20 @@ namespace OptionsAPI { // TODO: expand to float, int, and std::string
     template <>
     void addEditorLevelSetting<bool>(std::string_view name, std::string_view id, EditToggleCallback callback, EditInitialCallback initialValue, std::string_view desc) {
         AddEditToggleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    template <>
+    void addPreLevelSetting<double>(std::string_view name, std::string_view id, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, std::string_view desc) {
+        AddPreDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    template <>
+    void addMidLevelSetting<double>(std::string_view name, std::string_view id, MidDoubleCallback callback, MidInitialCallbackDouble initialValue, std::string_view desc) {
+        AddMidDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    template <>
+    void addEditorLevelSetting<double>(std::string_view name, std::string_view id, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, std::string_view desc) {
+        AddEditDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
     }
 }
