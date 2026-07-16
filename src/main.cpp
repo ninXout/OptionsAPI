@@ -415,8 +415,8 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		const int senderTag = sender-getTag();
 		if (this->setUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& info = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
-			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
@@ -425,8 +425,8 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->setUserFlag("use-midtoggles"_spr)) {
 			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& info = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
-			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
@@ -435,8 +435,8 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->setUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& info = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
-			FLALertLayer* info = FLALertLayer::create(nullptr, info.m_name, info.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name, information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
