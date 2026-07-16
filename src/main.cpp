@@ -44,8 +44,8 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
-    });
+		return ListenerResult::Stop;
+	});
 	preToggleListener.leak();
 	// new EventListener<EventFilter<AddMidToggleEvent>>(+[](AddMidToggleEvent* ev) {
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
@@ -58,8 +58,8 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
-    });
+		return ListenerResult::Stop;
+	});
 	midToggleListener.leak();
 	// new EventListener<EventFilter<AddEditToggleEvent>>(+[](AddEditToggleEvent* ev) {
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
@@ -72,19 +72,19 @@ $execute {
 				fmt::format("{}", desc)
 			};
 		}
-        return ListenerResult::Stop;
-    });
+		return ListenerResult::Stop;
+	});
 	editToggleListener.leak();
 }
 
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", 4000)) {
+		if (!self.setHookPriority("GameLevelOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
-            geode::log::warn("Failed to set hook priority for GameLevelOptionsLayer::setupOptions");
-        }
-    }
+			geode::log::warn("Failed to set hook priority for GameLevelOptionsLayer::setupOptions");
+		}
+	}
 
 	void setupOptions() {
 		auto winSize = CCDirector::get()->getWinSize();
@@ -138,15 +138,22 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	};
 
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("GameOptionsLayer::setupOptions", 4000)) {
+		if (!self.setHookPriority("GameOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
-            geode::log::warn("Failed to set hook priority for GameOptionsLayer::setupOptions");
-        }
-    }
+			geode::log::warn("Failed to set hook priority for GameOptionsLayer::setupOptions");
+		}
+	}
 
 	void onIgnoreDamage(CCObject* obj) {
 		GameManager::get()->toggleGameVariable("0173");
 		if (auto pl = typeinfo_cast<PlayLayer*>(this->m_baseGameLayer)) pl->toggleIgnoreDamage(GameManager::get()->getGameVariable("0173"));
+	}
+
+	CCPoint findPositionFor(int index) {
+		auto winSize = cocos2d::CCDirector::sharedDirector()->getWinSize();
+		cocos2d::CCPoint pos = winSize * .5f + cocos2d::CCPoint { index % 2 == 0 ? -160.f : 80.f, m_offset + 80.f };
+		if (index > 1) pos.y -= floorf(index / 2.f) * m_gap;
+		return pos;
 	}
 
 	void setupOptions() {
@@ -196,11 +203,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 			m_baseGameLayer->m_practiceMusicSync,
 			// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-			m_buttonMenu, ccp(96, 87), this,
-			this, 0.8f, 0.5f,
-			m_maxLabelWidth, ccp(8, 0),
-			"bigFont.fnt", false, 0,
-			nullptr
+			m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(11), this,
+			this->m_mainLayer, 0.8f, this->m_maxLabelScale, this->m_maxLabelWidth,
+			ccp(8, 0), "bigFont.fnt", false, 0, nullptr
 		);
 
 		if (m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor) {
@@ -230,11 +235,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				// in reality this should be GJOptionsLayer::onToggle with some extra stuff but it's easier to just recreate it
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
-				m_buttonMenu, ccp(297, 87), this,
-				this, 0.7f, 0.5f,
-				m_maxLabelWidth, ccp(0, 0),
-				"goldFont.fnt", false, 0,
-				nullptr
+				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(12), this,
+				this->layerForPage(0), 0.7f, this->m_maxLabelScale, this->m_maxLabelWidth,
+				ccp(0, 0), "goldFont.fnt", false, 0, nullptr
 			);
 			m_fields->fuckingStupidIgnoreDamageToggle->setPositionX(32.f); // brute force!
 
@@ -248,7 +251,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			addToggle("I WILL CRASH GD", -6, false, "DON'T PRESS ME!");
 			addToggle("DON'T PRESS ME!", -7, false, "I WILL CRASH GD");
 			addToggle("I WILL CRASH GD", -8, false, "DON'T PRESS ME!");
-			addToggle("I DON'T PRESS ME!-9, false, "I WILL CRASH GD");
+			addToggle("DON'T PRESS ME!", -9, false, "I WILL CRASH GD");
 			addToggle("I WILL CRASH GD", -10, false, "DON'T PRESS ME!");
 			addToggle("DON'T PRESS ME!", -11, false, "I WILL CRASH GD");
 			addToggle("I WILL CRASH GD", -12, false, "DON'T PRESS ME!");
@@ -387,11 +390,11 @@ class $modify(GJOptionsLayer) {
 #include <Geode/modify/EditorOptionsLayer.hpp>
 class $modify(EditorOptionsLayer) {
 	static void onModify(auto& self) {
-        if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
+		if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
 			// nin i'm so sorry, i want -9999999 prio as well but alk will yell at you if you kept -9999999 prio --raydeeux
-            geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
-        }
-    }
+			geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
+		}
+	}
 
 	void setupOptions() {
 		// no recreation needed here! everything is well done in EditorOptionsLayer
