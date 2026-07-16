@@ -150,9 +150,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	}
 
 	CCPoint findPositionFor(int index) {
-		auto winSize = cocos2d::CCDirector::sharedDirector()->getWinSize();
-		cocos2d::CCPoint pos = winSize * .5f + cocos2d::CCPoint { index % 2 == 0 ? -160.f : 80.f, m_offset + 80.f };
-		if (index > 1) pos.y -= floorf(index / 2.f) * m_gap;
+		cocos2d::CCPoint pos = (CCDirector::get()->getWinSize() / 2.f) + cocos2d::CCPoint{ index % 2 == 0 ? -160.f : 80.f, this->m_offset + 80.f };
+		if (index > 1) pos.y -= floorf(index / 2.f) * this->m_gap;
 		return pos;
 	}
 
