@@ -204,7 +204,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			m_baseGameLayer->m_practiceMusicSync,
 			// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
 			m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(11), this,
-			this->m_mainLayer, 0.8f, this->m_maxLabelScale, this->m_maxLabelWidth,
+			this, 0.8f, this->m_maxLabelScale, this->m_maxLabelWidth,
 			ccp(8, 0), "bigFont.fnt", false, 0, nullptr
 		);
 
@@ -236,8 +236,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				GameManager::get()->getGameVariable("0173"),
 				// highkey i eyeballed the CCPoint based on a screenshot cheeseworks sent here: https://discord.com/channels/911701438269386882/911702535373475870/1473814193152069844 [discord, #mod-dev-chat] --raydeeux
 				m_buttonMenu, OAPIGameOptionsLayer::findPositionFor(12), this,
-				this->layerForPage(0), 0.7f, this->m_maxLabelScale, this->m_maxLabelWidth,
-				ccp(0, 0), "goldFont.fnt", false, 0, nullptr
+				this, 0.7f, this->m_maxLabelScale, this->m_maxLabelWidth,
+				ccp(8, 0), "goldFont.fnt", false, 0, nullptr
 			);
 			m_fields->fuckingStupidIgnoreDamageToggle->setPositionX(32.f); // brute force!
 
