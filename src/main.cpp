@@ -183,6 +183,34 @@ $on_game(Loaded) {
 		-200.f, 200.f,
 		trueDesc
 	};
+	g_preDoubles["dummy-double-setting-double"_spr] = PreDoubleSetting{
+		"dummy double setting",
+		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+		[](GJGameLevel* gjlvl, double value) {
+			log::info("gjbgl: {}", gjlvl != nullptr);
+			log::info("value: {}", value);
+			dummyValue = value;
+		},
+		[](GJGameLevel* gjlvl) {
+			log::info("gjbgl: {}", gjlvl != nullptr);
+			return dummyValue;
+		},
+		-200.f, 200.f,
+		trueDesc
+	};
+	g_editDoubles["dummy-double-setting-double"_spr] = EditorDoubleSetting{
+		"dummy double setting",
+		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+		[](double value) {
+			log::info("value: {}", value);
+			dummyValue = value;
+		},
+		[]() {
+			return dummyValue;
+		},
+		-200.f, 200.f,
+		trueDesc
+	};
 }
 
 // remove ifdefs once desktop also gets CBF overrides --raydeeux
