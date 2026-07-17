@@ -228,7 +228,7 @@ $on_game(Loaded) {
 	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc, const int offsetBecauseOfStupidNoclipToggle = 0) {\
 		if (!this->m_buttonMenu) return nullptr;\
 		addToggle(" ", tag, false, desc.data());\
-		log::info("creating toggle for page ((tag + offsetBecauseOfStupidNoclipToggle) / this->m_togglesPerPage): {}", std::round((1.f * (tag + offsetBecauseOfStupidNoclipToggle)) / (1.f * this->m_togglesPerPage));\
+		log::info("creating toggle for page ((tag + offsetBecauseOfStupidNoclipToggle) / this->m_togglesPerPage): {}", std::round((1.f * (tag + offsetBecauseOfStupidNoclipToggle)) / (1.f * this->m_togglesPerPage)));\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
