@@ -227,7 +227,7 @@ $on_game(Loaded) {
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
 	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
 		if (!this->m_buttonMenu) return nullptr;\
-		addToggle(" ", tag, false, desc.data().c_str());\
+		addToggle(" ", tag, false, desc.data());\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
