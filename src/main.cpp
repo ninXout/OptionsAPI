@@ -494,7 +494,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
 			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
-			container->setPositionY(dummyCheckbox->getPositionY() + 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
+			container->setPositionY(dummyCheckbox->getPositionY() - 4.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 
 			index++;
