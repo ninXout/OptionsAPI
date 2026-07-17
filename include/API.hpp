@@ -51,17 +51,19 @@ using EditInitialCallbackDouble = std::function<double()>;
 
 // THE THING TO DO: ADD MIN AND MAX SPECIFIERS
 #define DOUBLEEVENT(evname, changeInDouble, call) \
-class Add##evname##DoubleEvent : public Event<Add##evname##DoubleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+class Add##evname##DoubleEvent : public Event<Add##evname##DoubleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, double min, double max, std::string_view desc, geode::Mod* mod)> { \
 public: \
     using Event::Event; \
     std::string m_name; \
     std::string m_id; \
     changeInDouble m_callback; \
     call m_initialValue; \
+    double m_min; \
+    double m_max; \
     std::string m_description; \
     geode::Mod* m_mod; \
  \
-    Add##evname##DoubleEvent(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_description(desc), m_mod(mod) {}; \
+    Add##evname##DoubleEvent(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, double min, double max, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_min(min), m_max(max), m_description(desc), m_mod(mod) {}; \
  \
     READONLY(m_name, Name, std::string); \
     READONLY(m_id, ID, std::string); \
@@ -69,6 +71,8 @@ public: \
     READONLY(m_initialValue, InitialVal, call); \
     READONLY(m_description, Desc, std::string); \
     READONLY(m_mod, Mod, geode::Mod*); \
+    READONLY(m_min, Min, double); \
+    READONLY(m_max, Max, double); \
 };
 
 DOUBLEEVENT(Pre, PreDoubleCallback, PreInitialCallbackDouble)
@@ -86,13 +90,13 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     void addEditorLevelSetting(std::string_view name, std::string_view id, std::function<void()> callback, std::function<T()> initialValue, std::string_view desc);
 
     template <typename T>
-    void addPreLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJGameLevel*, T)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
+    void addPreLevelSettingReactiveNumeric(std::string_view name, std::string_view id, std::function<void(GJGameLevel*, T)> callback, std::function<T(GJGameLevel*)> initialValue, T min, T max, std::string_view desc);
 
     template <typename T>
-    void addMidLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(GJBaseGameLayer*, T)> callback, std::function<T(GJBaseGameLayer*)> initialValue, std::string_view desc);
+    void addMidLevelSettingReactiveNumeric(std::string_view name, std::string_view id, std::function<void(GJBaseGameLayer*, T)> callback, std::function<T(GJBaseGameLayer*)> initialValue, T min, T max, std::string_view desc);
 
     template <typename T>
-    void addEditorLevelSettingReactive(std::string_view name, std::string_view id, std::function<void(T)> callback, std::function<T()> initialValue, std::string_view desc);
+    void addEditorLevelSettingReactiveNumeric(std::string_view name, std::string_view id, std::function<void(T)> callback, std::function<T()> initialValue, T min, T max, std::string_view desc);
 
     template <>
     void addPreLevelSetting<bool>(std::string_view name, std::string_view id, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc) {
@@ -110,17 +114,17 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     }
 
     template <>
-    void addPreLevelSettingReactive<double>(std::string_view name, std::string_view id, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, std::string_view desc) {
-        AddPreDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    void addPreLevelSettingReactiveNumeric<double>(std::string_view name, std::string_view id, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, double min, double max, std::string_view desc) {
+        AddPreDoubleEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
     }
 
     template <>
-    void addMidLevelSettingReactive<double>(std::string_view name, std::string_view id, MidDoubleCallback callback, MidInitialCallbackDouble initialValue, std::string_view desc) {
-        AddMidDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    void addMidLevelSettingReactiveNumeric<double>(std::string_view name, std::string_view id, MidDoubleCallback callback, MidInitialCallbackDouble initialValue, double min, double max, std::string_view desc) {
+        AddMidDoubleEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
     }
 
     template <>
-    void addEditorLevelSettingReactive<double>(std::string_view name, std::string_view id, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, std::string_view desc) {
-        AddEditDoubleEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    void addEditorLevelSettingReactiveNumeric<double>(std::string_view name, std::string_view id, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, double min, double max, std::string_view desc) {
+        AddEditDoubleEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
     }
 }

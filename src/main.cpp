@@ -32,6 +32,8 @@ struct PreDoubleSetting {
 	std::string m_modID;
 	std::function<void(GJGameLevel*, double)> m_callback;
 	std::function<double(GJGameLevel*)> m_initial;
+	double m_min;
+	double m_max;
 	std::string m_description;
 };
 
@@ -40,6 +42,8 @@ struct MidDoubleSetting {
 	std::string m_modID;
 	std::function<void(GJBaseGameLayer*, double)> m_callback;
 	std::function<double(GJBaseGameLayer*)> m_initial;
+	double m_min;
+	double m_max;
 	std::string m_description;
 };
 
@@ -48,6 +52,8 @@ struct EditorDoubleSetting {
 	std::string m_modID;
 	std::function<void(double)> m_callback;
 	std::function<double()> m_initial;
+	double m_min;
+	double m_max;
 	std::string m_description;
 };
 
@@ -64,10 +70,10 @@ $execute {
 		if (mod && !name.empty()) {
 			g_preToggles[fmt::format("{}/{}", modID, name)] = PreToggleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
@@ -78,10 +84,10 @@ $execute {
 		if (mod && !name.empty()) {
 			g_midToggles[fmt::format("{}/{}", modID, name)] = MidToggleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
@@ -92,52 +98,52 @@ $execute {
 		if (mod && !name.empty()) {
 			g_editToggles[fmt::format("{}/{}", modID, name)] = EditorToggleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	editToggleListener.leak();
 
-	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_preDoubles[fmt::format("{}/{}", modID, name)] = PreDoubleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
-				callback,
-				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	preDoubleListener.leak();
 
-	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_midDoubles[fmt::format("{}/{}", modID, name)] = MidDoubleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
-				callback,
-				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	midDoubleListener.leak();
 
-	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			g_editDoubles[fmt::format("{}/{}", modID, name)] = EditorDoubleSetting{
 				fmt::format("{}", name),
-				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers()[0], mod->getDevelopers().size() > 1 ? " and More" : ""),
-				callback,
-				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers()[0]) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 			};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
@@ -211,8 +217,6 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 		this->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 		this->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
-
-		auto winSize = CCDirector::get()->getWinSize();
 
 		// do this to add descriptions to low detail mode and disable shake
 		addToggle("Low Detail Mode", 1, m_level->m_lowDetailModeToggled, "Disables all objects marked as High Detail in the level."); // rewrite desc for consistency with shake trigger toggle. original desc: Toggles off all objects marked as High Detail.
@@ -465,14 +469,14 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(this->m_maxLabelWidth);
 
-			geode::TextInput* inputBox = geode::TextInput::create(this->m_maxLabelWidth * .25f, w.m_name);
+			geode::TextInput* inputBox = geode::TextInput::create(this->m_maxLabelWidth * .5f, w.m_name);
 			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback](const std::string& input) {
-				// swap for actual declared max and mins
-				callback(gjbgl, std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(-1.f), -1.f, 200.f));
+			inputBox->setCallback([gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+				callback(gjbgl, std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(min), min, max));
 			});
 
 			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
+			label->limitLabelWidth(this->m_maxLabelWidth * .5, 1.f, .00001f);
 
 			container->addChild(inputBox);
 			container->addChild(label);
@@ -480,6 +484,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f));
 
 			this->m_buttonMenu->addChild(container);
+
+			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
 			container->setPosition(dummyCheckboxPosition);
 			container->setAnchorPoint({container->getContentWidth() * .1f, .5f});
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
