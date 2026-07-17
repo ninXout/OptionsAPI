@@ -225,9 +225,9 @@ $on_game(Loaded) {
 #define EDIT_TOGGLES_START 200
 
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
-	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string& desc) {\
+	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
 		if (!this->m_buttonMenu) return nullptr;\
-		addToggle(" ", tag, false, desc.c_str());\
+		addToggle(" ", tag, false, desc.data().c_str());\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
@@ -284,10 +284,36 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			index++;
 		}
 
+		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_preDoubles) {
-			CCMenuItemToggler* dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
 			CCMenu* container = CCMenu::create();
-			// impl custom node perhaps
+			container->setContentWidth(idealWidth);
+
+			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_level));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Float);
+			inputBox->setCallback([me = geode::Ref(inputBox), gjlvl = geode::Ref(this->m_level), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
+				me->setString(geode::utils::numToString(clamped), false);
+				callback(gjlvl, clamped);
+			});
+
+			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
+			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
+
+			container->addChild(inputBox);
+			container->addChild(label);
+
+			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
+
+			this->m_buttonMenu->addChild(container);
+
+			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
+			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
+			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
+			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 			index++;
 		}
 	}
@@ -509,7 +535,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_midDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description.c_str());
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
 
@@ -709,10 +735,36 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			index++;
 		}
 
+		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_editDoubles) {
-			CCMenuItemToggler* dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
 			CCMenu* container = CCMenu::create();
-			// impl custom node perhaps
+			container->setContentWidth(idealWidth);
+
+			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial());
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Float);
+			inputBox->setCallback([me = geode::Ref(inputBox), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
+				me->setString(geode::utils::numToString(clamped), false);
+				callback(clamped);
+			});
+
+			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
+			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
+
+			container->addChild(inputBox);
+			container->addChild(label);
+
+			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
+
+			this->m_buttonMenu->addChild(container);
+
+			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
+			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
+			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
+			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 			index++;
 		}
 	}
