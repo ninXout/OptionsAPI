@@ -586,8 +586,21 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		const int senderTag = sender->getTag();
 		if (this->getUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			// log::info("senderTag: {}", senderTag);
+			// log::info("g_midToggles.size() + EDIT_TOGGLES_START: {}", g_midToggles.size() + EDIT_TOGGLES_START);
+			std::string name, desc;
+			if (senderTag < g_preToggles.size() + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_preToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < g_preDoubles.size() + g_preToggles.size() + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_preDoubles.begin(), senderTag - g_preToggles.size() - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			}
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
@@ -619,8 +632,21 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->getUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
+			// log::info("senderTag: {}", senderTag);
+			// log::info("g_midToggles.size() + PRE_TOGGLES_START: {}", g_midToggles.size() + PRE_TOGGLES_START);
+			std::string name, desc;
+			if (senderTag < g_preToggles.size() + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < g_preDoubles.size() + g_preToggles.size() + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preDoubles.begin(), senderTag - g_preToggles.size() - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			}
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
