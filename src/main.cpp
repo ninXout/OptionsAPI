@@ -155,7 +155,6 @@ $execute {
 double dummyValue = 150.;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
-	const std::string& desc = fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0));
 	g_midDoubles["dummy-double-setting"_spr] = MidDoubleSetting{
 		"dummy double setting",
 		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -168,7 +167,7 @@ $on_game(Loaded) {
 			log::info("gjbgl: {}", gjbgl != nullptr);
 			return dummyValue;
 		},
-		-200.f, 200.f, desc
+		-200.f, 200.f, "desc"
 	};
 }
 
@@ -473,7 +472,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_baseGameLayer));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * .5f, stupidPlaceholder);
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
 			inputBox->setString(stupidPlaceholder, false);
 			inputBox->setCommonFilter(CommonFilter::Float);
 			inputBox->setCallback([me = geode::Ref(inputBox), gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
@@ -483,18 +482,18 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			});
 
 			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(idealWidth * .25f, 1.f, .00001f);
+			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
 
 			container->addChild(inputBox);
 			container->addChild(label);
 
-			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f));
+			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
 
 			this->m_buttonMenu->addChild(container);
 
 			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
 			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
-			container->setPositionY(dummyCheckbox->getPositionY() - 4.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
+			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 
 			index++;
