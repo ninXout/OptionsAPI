@@ -232,7 +232,6 @@ $on_game(Loaded) {
 		int page = ((tag + offsetBecauseOfStupidNoclipToggleOrOtherStupidReason) / this->m_togglesPerPage);\
 		const int modulo = ((tag + offsetBecauseOfStupidNoclipToggleOrOtherStupidReason) % this->m_togglesPerPage);\
 		if (modulo != 0) page++;\
-		log::info("creating toggle for page: {}", page);\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
@@ -245,6 +244,7 @@ $on_game(Loaded) {
 			placeholder->m_offButton->removeMeAndCleanup();\
 			placeholder->m_offButton = nullptr;\
 			placeholder->removeAllChildrenWithCleanup(true);\
+			placeholder->setUserObject("page-number"_spr, CCInteger::create(page));\
 			return placeholder;\
 		}\
 		return nullptr;\
@@ -292,7 +292,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_preDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
-			if (!dummyCheckbox) continue;
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
 
@@ -320,6 +320,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
 			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
+			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
+			container->setUserFlag("not-a-toggle"_spr, true);
+
 			index++;
 		}
 	}
@@ -534,7 +537,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_midDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox) continue;
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
 
@@ -562,6 +565,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
 			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
+			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
+			container->setUserFlag("not-a-toggle"_spr, true);
 
 			index++;
 		}
@@ -607,6 +612,17 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 	}
 	void goToPage(int page) {
 		GJOptionsLayer::goToPage(page);
+
+		if (this->getUserFlag("use-edittoggles"_spr) || this->getUserFlag("use-midtoggles"_spr) || this->getUserFlag("use-pretoggles"_spr)) {
+			for (CCNode* child : this->m_buttonMenu->getChildrenExt()) {
+				if (!child || !child->getUserFlag("not-a-toggle"_spr) || child->getTag() > -1 || !child->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(child->getUserObject("page-number"_spr))) continue;
+				// log::info("child object name: {}", geode::cocos::getObjectName(child));
+				// log::info("static_cast<CCInteger*>(child->getUserObject(\"page-number\"_spr))->getValue(): {}", static_cast<CCInteger*>(child->getUserObject("page-number"_spr))->getValue());
+				// log::info("page: {}", page);
+				child->setVisible(static_cast<CCInteger*>(child->getUserObject("page-number"_spr))->getValue() == page + 1);
+			}
+		}
+
 		if (this->getTag() != 20260219 || !this->getUserFlag("modified-by-options-api"_spr) || !typeinfo_cast<CCBool*>(this->getUserObject("options-api"_spr)) || !static_cast<CCBool*>(this->getUserObject("options-api"_spr))->getValue() || !typeinfo_cast<GameOptionsLayer*>(this)) return;
 
 		OAPIGameOptionsLayer* fooBar = reinterpret_cast<OAPIGameOptionsLayer*>(this);
@@ -738,7 +754,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_editDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox) continue;
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
 
@@ -766,6 +782,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
 			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
+			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
+			container->setUserFlag("not-a-toggle"_spr, true);
+
 			index++;
 		}
 	}
