@@ -57,6 +57,15 @@ struct EditorDoubleSetting {
 	std::string m_description;
 };
 
+struct NameDesc {
+	std::string m_name;
+	std::string m_description;
+};
+
+std::unordered_map<std::string, NameDesc> g_preDescs;
+std::unordered_map<std::string, NameDesc> g_midDescs;
+std::unordered_map<std::string, NameDesc> g_editDescs;
+
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
 std::map<std::string, EditorToggleSetting> g_editToggles;
@@ -68,13 +77,15 @@ std::map<std::string, EditorDoubleSetting> g_editDoubles;
 $execute {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_preToggles[fmt::format("{}/{}", modID, name)] = PreToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_preDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -82,13 +93,15 @@ $execute {
 
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_midToggles[fmt::format("{}/{}", modID, name)] = MidToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_midDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -96,13 +109,15 @@ $execute {
 
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_editToggles[fmt::format("{}/{}", modID, name)] = EditorToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback,
 				initialValue,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_editDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -110,13 +125,15 @@ $execute {
 
 	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_preDoubles[fmt::format("{}/{}", modID, name)] = PreDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback, initialValue,
 				min, max,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_preDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -124,13 +141,15 @@ $execute {
 
 	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_midDoubles[fmt::format("{}/{}", modID, name)] = MidDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback, initialValue,
 				min, max,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_midDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -138,13 +157,15 @@ $execute {
 
 	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_editDoubles[fmt::format("{}/{}", modID, name)] = EditorDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 				callback, initialValue,
 				min, max,
-				desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+				lockedInDesc
 			};
+			g_editDescs[fmt::format("{}/{}", modID, name)] = NameDesc{name.data(), lockedInDesc};
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
 		return ListenerResult::Stop;
 	});
@@ -155,7 +176,8 @@ $execute {
 double dummyValue = 150.;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
-	std::string desc = "";
+	std::string desc;
+	const std::string& trueDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 	g_midDoubles["dummy-double-setting"_spr] = MidDoubleSetting{
 		"dummy double setting",
 		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -169,8 +191,9 @@ $on_game(Loaded) {
 			return dummyValue;
 		},
 		-200.f, 200.f,
-		desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+		trueDesc
 	};
+	g_midDescs["dummy-double-setting"_spr] = NameDesc{"dummy double setting", trueDesc};
 }
 
 // remove ifdefs once desktop also gets CBF overrides --raydeeux
@@ -574,7 +597,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		const int senderTag = sender->getTag();
 		if (this->getUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
+			const auto& information = std::next(g_editDescs.begin(), senderTag - EDIT_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
@@ -584,7 +607,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->getUserFlag("use-midtoggles"_spr)) {
 			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
+			const auto& information = std::next(g_midDescs.begin(), senderTag - MID_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
@@ -594,7 +617,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->getUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
+			const auto& information = std::next(g_preDescs.begin(), senderTag - PRE_TOGGLES_START)->second;
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
