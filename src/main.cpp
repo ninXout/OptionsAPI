@@ -223,12 +223,16 @@ $on_game(Loaded) {
 #define MID_TOGGLES_START 12
 // so the tags in editoroptionslayer are all sorts of fucked
 #define EDIT_TOGGLES_START 200
+#define ACTUAL_EDITOR_TOGGLER_COUNT 25
 
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
-	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc, const int offsetBecauseOfStupidNoclipToggle = 0) {\
+	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc, const int offsetBecauseOfStupidNoclipToggleOrOtherStupidReason = 0) {\
 		if (!this->m_buttonMenu) return nullptr;\
 		addToggle(" ", tag, false, desc.data());\
-		log::info("creating toggle for page ((tag + offsetBecauseOfStupidNoclipToggle) / this->m_togglesPerPage): {}", std::round((1.f * (tag + offsetBecauseOfStupidNoclipToggle)) / (1.f * this->m_togglesPerPage)));\
+		int page = ((tag + offsetBecauseOfStupidNoclipToggleOrOtherStupidReason) / this->m_togglesPerPage);\
+		const int modulo = ((tag + offsetBecauseOfStupidNoclipToggleOrOtherStupidReason) % this->m_togglesPerPage);\
+		if (modulo != 0) page++;\
+		log::info("creating toggle for page: {}", page);\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
@@ -733,7 +737,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_editDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
 			if (!dummyCheckbox) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
