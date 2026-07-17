@@ -641,16 +641,17 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		if (this->getUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
 			// log::info("senderTag: {}", senderTag);
-			// log::info("g_midToggles.size() + EDIT_TOGGLES_START: {}", g_midToggles.size() + EDIT_TOGGLES_START);
+			// log::info("g_editToggles.size() + EDIT_TOGGLES_START: {}", g_editToggles.size() + EDIT_TOGGLES_START);
 			std::string name, desc;
-			if (senderTag < g_preToggles.size() + EDIT_TOGGLES_START) {
+			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size();
+			if (senderTag < editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_preToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
+				const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
-			} else if (senderTag < g_preDoubles.size() + g_preToggles.size() + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_preDoubles.begin(), senderTag - g_preToggles.size() - EDIT_TOGGLES_START)->second;
+			} else if (senderTag < editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - editTogglesCount - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_editDoubles.begin(), senderTag - editTogglesCount - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -666,14 +667,15 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
 			std::string name, desc;
-			if (senderTag < g_midToggles.size() + MID_TOGGLES_START) {
+			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size();
+			if (senderTag < midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
 				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
-			} else if (senderTag < g_midDoubles.size() + g_midToggles.size() + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - MID_TOGGLES_START);
-				const auto& information = std::next(g_midDoubles.begin(), senderTag - g_midToggles.size() - MID_TOGGLES_START)->second;
+			} else if (senderTag < midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - midTogglesCount - MID_TOGGLES_START);
+				const auto& information = std::next(g_midDoubles.begin(), senderTag - midTogglesCount - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -687,16 +689,17 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		if (this->getUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
 			// log::info("senderTag: {}", senderTag);
-			// log::info("g_midToggles.size() + PRE_TOGGLES_START: {}", g_midToggles.size() + PRE_TOGGLES_START);
+			// log::info("g_preToggles.size() + PRE_TOGGLES_START: {}", g_preToggles.size() + PRE_TOGGLES_START);
 			std::string name, desc;
-			if (senderTag < g_preToggles.size() + PRE_TOGGLES_START) {
+			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size();
+			if (senderTag < preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
-			} else if (senderTag < g_preDoubles.size() + g_preToggles.size() + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preDoubles.begin(), senderTag - g_preToggles.size() - PRE_TOGGLES_START)->second;
+			} else if (senderTag < preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - preTogglesCount - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preDoubles.begin(), senderTag - preTogglesCount - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
