@@ -152,23 +152,23 @@ $execute {
 }
 
 // keep for debugging
+double dummyValue = 150.;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
-	std::string desc;
+	const std::string& desc = fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0));
 	g_midDoubles["dummy-double-setting"_spr] = MidDoubleSetting{
 		"dummy double setting",
 		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
 		[](GJBaseGameLayer* gjbgl, double value) {
 			log::info("gjbgl: {}", gjbgl != nullptr);
 			log::info("value: {}", value);
+			dummyValue = value;
 		},
 		[](GJBaseGameLayer* gjbgl) {
 			log::info("gjbgl: {}", gjbgl != nullptr);
-			return 0.f;
+			return dummyValue;
 		},
-		-200.f,
-		200.f,
-		desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
+		-200.f, 200.f, desc
 	};
 }
 
@@ -238,12 +238,12 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 		int index = PRE_TOGGLES_START;
 
-		for (auto [k, v] : g_preToggles) {
+		for (const auto& [k, v] : g_preToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), fmt::format("{}", v.m_description).c_str());
 			index++;
 		}
 
-		for (auto [l, w] : g_preDoubles) {
+		for (const auto& [l, w] : g_preDoubles) {
 			CCMenuItemToggler* dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
@@ -461,27 +461,29 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 		int index = MID_TOGGLES_START;
 
-		for (auto [k, v] : g_midToggles) {
+		for (const auto& [k, v] : g_midToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(m_baseGameLayer), fmt::format("{}", v.m_description).c_str());
 			index++;
 		}
 
 		constexpr float idealWidth = 165.f;
-		for (auto [l, w] : g_midDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+		for (const auto& [l, w] : g_midDoubles) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description.c_str());
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
 
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * .5f, geode::utils::numToString(w.m_initial(this->m_baseGameLayer)));
+			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_baseGameLayer));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * .5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
 			inputBox->setCommonFilter(CommonFilter::Float);
 			inputBox->setCallback([me = geode::Ref(inputBox), gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
-				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(min), min, max);
+				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				me->setString(geode::utils::numToString(clamped), false);
 				callback(gjbgl, clamped);
 			});
 
 			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(idealWidth * .5, 1.f, .00001f);
+			label->limitLabelWidth(idealWidth * .25f, 1.f, .00001f);
 
 			container->addChild(inputBox);
 			container->addChild(label);
@@ -490,10 +492,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			this->m_buttonMenu->addChild(container);
 
-			const CCPoint dummyCheckboxPosition = dummyCheckbox->getPosition();
 			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
-			container->setPosition(dummyCheckboxPosition);
-			container->setPositionX(dummyCheckboxPosition.x - (dummyCheckbox->getContentWidth() / 2.f));
+			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
+			container->setPositionY(dummyCheckbox->getPositionY() + 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 
 			index++;
@@ -623,12 +624,12 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 		int index = EDIT_TOGGLES_START; // bump this by 1 because rob added "Static Trace Arrows", "0181" --raydeeux
 
-		for (auto [k, v] : g_editToggles) {
+		for (const auto& [k, v] : g_editToggles) {
 			addToggle(v.m_name.c_str(), index, v.m_initial(), fmt::format("{}", v.m_description).c_str());
 			index++;
 		}
 
-		for (auto [l, w] : g_editDoubles) {
+		for (const auto& [l, w] : g_editDoubles) {
 			CCMenuItemToggler* dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
