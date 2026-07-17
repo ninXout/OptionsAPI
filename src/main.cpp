@@ -319,16 +319,8 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	}
 
 	void didToggle(int opt) {
-		switch (opt) {
-			case 1: case 2:
-				return GameLevelOptionsLayer::didToggle(opt);
-			#ifdef GEODE_IS_MOBILE // remove ifdefs once desktop also gets CBF overrides --raydeeux
-			case 3: case 4:
-				return GameLevelOptionsLayer::didToggle(opt);
-			#endif
-			default:
-				return std::next(g_preToggles.begin(), opt - PRE_TOGGLES_START)->second.m_callback(m_level); // this might be stupid idk
-		}
+		if (opt > PRE_TOGGLES_START - 1) return std::next(g_preToggles.begin(), opt - PRE_TOGGLES_START)->second.m_callback(m_level);
+		GameLevelOptionsLayer::didToggle(opt);
 	}
 };
 
@@ -569,15 +561,13 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 	}
 
 	void didToggle(int opt) {
+		if (opt > MID_TOGGLES_START - 1) return std::next(g_midToggles.begin(), opt - MID_TOGGLES_START)->second.m_callback(m_baseGameLayer); // this might be stupid idk
 		switch (opt) {
-			case 0: return;
+			default: return;
 			case 1: case 2: case 3: case 4: case 5:
 			case 6: case 7: case 8: case 9: case 11:
 				return GameOptionsLayer::didToggle(opt);
-			case 10:
-				return onPracticeMusicSync(nullptr);
-			default:
-				return std::next(g_midToggles.begin(), opt - MID_TOGGLES_START)->second.m_callback(m_baseGameLayer); // this might be stupid idk
+			case 10: return GameOptionsLayer::onPracticeMusicSync(nullptr);
 		}
 	}
 };
