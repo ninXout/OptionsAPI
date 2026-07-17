@@ -596,18 +596,25 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		}
 		if (this->getUserFlag("use-midtoggles"_spr)) {
 			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			log::info("senderTag: {}", senderTag);
-			log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
+			// log::info("senderTag: {}", senderTag);
+			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
+			std::string name, desc;
 			if (senderTag < g_midToggles.size() + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
 				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
-				FLAlertLayer* info = FLAlertLayer::create(nullptr, information.m_name.c_str(), information.m_description, "OK", nullptr, 400.f, false, 0, 1.f);
-				info->m_noElasticity = true;
-				info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
-				info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
-				info->show();
+				name = information.m_name;
+				desc = information.m_description;
 			} else if (senderTag < g_midDoubles.size() + g_midToggles.size() + MID_TOGGLES_START) {
-				log::info("index should be 0: {}", senderTag - g_midDoubles.size() - 1 + MID_TOGGLES_START);
+				// log::info("index should be 0: {}", senderTag - g_midToggles.size() - MID_TOGGLES_START);
+				const auto& information = std::next(g_midDoubles.begin(), senderTag - g_midToggles.size() - MID_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
 			}
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, geode::utils::string::replace(name, "f0000>", "_>").c_str(), desc, "OK", nullptr, 400.f, false, 0, 1.f);
+			info->m_noElasticity = true;
+			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
+			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
+			info->show();
 			return;
 		}
 		if (this->getUserFlag("use-pretoggles"_spr)) {
