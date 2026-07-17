@@ -166,6 +166,8 @@ $on_game(Loaded) {
 			log::info("gjbgl: {}", gjbgl != nullptr);
 			return 0.f;
 		},
+		-200.f,
+		200.f,
 		desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 	};
 }
