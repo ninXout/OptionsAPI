@@ -184,8 +184,8 @@ $on_game(Loaded) {
 #define EDIT_TOGGLES_START 200
 
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
-	CCPoint addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
-		if (!this->m_buttonMenu) return ccp(-20260716, -20260716);\
+	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
+		if (!this->m_buttonMenu) return nullptr;\
 		addToggle(" ", tag, false, fmt::format("{}", desc).c_str());\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
@@ -199,9 +199,9 @@ $on_game(Loaded) {
 			placeholder->m_offButton->removeMeAndCleanup();\
 			placeholder->m_offButton = nullptr;\
 			placeholder->removeAllChildrenWithCleanup(true);\
-			return placeholder->getPosition();\
+			return placeholder;\
 		}\
-		return ccp(-20260716, -20260716);\
+		return nullptr;\
 	}
 
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
@@ -244,7 +244,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_preDoubles) {
-			CCPoint dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+			CCMenuItemToggler* dummyCheckboxPosition = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
@@ -466,19 +466,22 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			index++;
 		}
 
+		constexpr float idealWidth = 165.f;
 		for (auto [l, w] : g_midDoubles) {
-			CCPoint dummyCheckboxPosition = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
-			container->setContentWidth(this->m_maxLabelWidth);
+			container->setContentWidth(idealWidth);
 
-			geode::TextInput* inputBox = geode::TextInput::create(this->m_maxLabelWidth * .5f, w.m_name);
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * .5f, geode::utils::numToString(w.m_initial(this->m_baseGameLayer)));
 			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
-				callback(gjbgl, std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(min), min, max));
+			inputBox->setCallback([me = geode::Ref(inputBox), gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr(min), min, max);
+				me->setString(geode::utils::numToString(clamped), false);
+				callback(gjbgl, clamped);
 			});
 
 			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(this->m_maxLabelWidth * .5, 1.f, .00001f);
+			label->limitLabelWidth(idealWidth * .5, 1.f, .00001f);
 
 			container->addChild(inputBox);
 			container->addChild(label);
@@ -487,9 +490,10 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			this->m_buttonMenu->addChild(container);
 
+			const CCPoint dummyCheckboxPosition = dummyCheckbox->getPosition();
 			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
 			container->setPosition(dummyCheckboxPosition);
-			container->setAnchorPoint({container->getContentWidth() * .1f, .5f});
+			container->setPositionX(dummyCheckboxPosition.x - (dummyCheckbox->getContentWidth() / 2.f));
 			container->ignoreAnchorPointForPosition(true); // fuck you robtop
 
 			index++;
@@ -625,7 +629,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		}
 
 		for (auto [l, w] : g_editDoubles) {
-			CCPoint dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
+			CCMenuItemToggler* dummyCheckboxPosition = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, fmt::format("{}", w.m_description).c_str());
 			CCMenu* container = CCMenu::create();
 			// impl custom node perhaps
 			index++;
