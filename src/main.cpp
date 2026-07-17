@@ -610,7 +610,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				name = information.m_name;
 				desc = information.m_description;
 			}
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, geode::utils::string::replace(name, "f0000>", "_>").c_str(), desc, "OK", nullptr, 400.f, false, 0, 1.f);
+			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
 			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
 			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
