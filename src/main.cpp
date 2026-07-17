@@ -155,6 +155,7 @@ $execute {
 double dummyValue = 150.;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
+	std::string desc = "";
 	g_midDoubles["dummy-double-setting"_spr] = MidDoubleSetting{
 		"dummy double setting",
 		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -167,7 +168,8 @@ $on_game(Loaded) {
 			log::info("gjbgl: {}", gjbgl != nullptr);
 			return dummyValue;
 		},
-		-200.f, 200.f, "desc"
+		-200.f, 200.f,
+		desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc)
 	};
 }
 
@@ -183,9 +185,9 @@ $on_game(Loaded) {
 #define EDIT_TOGGLES_START 200
 
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
-	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc) {\
+	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string& desc) {\
 		if (!this->m_buttonMenu) return nullptr;\
-		addToggle(" ", tag, false, fmt::format("{}", desc).c_str());\
+		addToggle(" ", tag, false, desc.c_str());\
 		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
 			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
 			placeholder->setScale(0);\
