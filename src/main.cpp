@@ -222,6 +222,8 @@ $on_game(Loaded) {
 #endif
 #define MID_TOGGLES_START 12
 // so the tags in editoroptionslayer are all sorts of fucked
+// EDIT_TOGGLES_START is for the toggler's individual tags
+// ACTUAL_EDITOR_TOGGLER_COUNT is the # of togglers rob added (plus two invisible ones)
 #define EDIT_TOGGLES_START 200
 #define ACTUAL_EDITOR_TOGGLER_COUNT 25
 
@@ -300,9 +302,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
 			inputBox->setString(stupidPlaceholder, false);
 			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = geode::Ref(inputBox), gjlvl = geode::Ref(this->m_level), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			inputBox->setCallback([me = inputBox, gjlvl = this->m_level, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				me->setString(geode::utils::numToString(clamped), false);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjlvl, clamped);
 			});
 
@@ -545,9 +547,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
 			inputBox->setString(stupidPlaceholder, false);
 			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = geode::Ref(inputBox), gjbgl = geode::Ref(this->m_baseGameLayer), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			inputBox->setCallback([me = inputBox, gjbgl = this->m_baseGameLayer, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				me->setString(geode::utils::numToString(clamped), false);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjbgl, clamped);
 			});
 
@@ -762,9 +764,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
 			inputBox->setString(stupidPlaceholder, false);
 			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = geode::Ref(inputBox), callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			inputBox->setCallback([me = inputBox, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				me->setString(geode::utils::numToString(clamped), false);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(clamped);
 			});
 
