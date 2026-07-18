@@ -57,8 +57,33 @@ struct EditorDoubleSetting {
 	std::string m_description;
 };
 
-struct NameDesc {
+struct PreLongSetting {
 	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJGameLevel*, long)> m_callback;
+	std::function<long(GJGameLevel*)> m_initial;
+	long m_min;
+	long m_max;
+	std::string m_description;
+};
+
+struct MidLongSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJBaseGameLayer*, long)> m_callback;
+	std::function<long(GJBaseGameLayer*)> m_initial;
+	long m_min;
+	long m_max;
+	std::string m_description;
+};
+
+struct EditorLongSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(long)> m_callback;
+	std::function<long()> m_initial;
+	long m_min;
+	long m_max;
 	std::string m_description;
 };
 
@@ -69,6 +94,10 @@ std::map<std::string, EditorToggleSetting> g_editToggles;
 std::map<std::string, PreDoubleSetting> g_preDoubles;
 std::map<std::string, MidDoubleSetting> g_midDoubles;
 std::map<std::string, EditorDoubleSetting> g_editDoubles;
+
+std::map<std::string, PreLongSetting> g_preLongs;
+std::map<std::string, MidLongSetting> g_midLongs;
+std::map<std::string, EditorLongSetting> g_editLongs;
 
 $execute {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
@@ -117,7 +146,7 @@ $execute {
 	editToggleListener.leak();
 
 	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_preDoubles[fmt::format("{}/{}-double", modID, name)] = PreDoubleSetting{
 				fmt::format("{}", name),
@@ -126,13 +155,14 @@ $execute {
 				min, max,
 				lockedInDesc
 			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
 		return ListenerResult::Stop;
 	});
 	preDoubleListener.leak();
 
 	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_midDoubles[fmt::format("{}/{}-double", modID, name)] = MidDoubleSetting{
 				fmt::format("{}", name),
@@ -141,13 +171,14 @@ $execute {
 				min, max,
 				lockedInDesc
 			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
 		return ListenerResult::Stop;
 	});
 	midDoubleListener.leak();
 
 	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
 			g_editDoubles[fmt::format("{}/{}-double", modID, name)] = EditorDoubleSetting{
 				fmt::format("{}", name),
@@ -156,61 +187,156 @@ $execute {
 				min, max,
 				lockedInDesc
 			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
 		return ListenerResult::Stop;
 	});
 	editDoubleListener.leak();
+
+	auto preLongListener = AddPreLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, long)> callback, std::function<long(GJGameLevel*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty() && min < max) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			g_preLongs[fmt::format("{}/{}-long", modID, name)] = PreLongSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
+		return ListenerResult::Stop;
+	});
+	preLongListener.leak();
+
+	auto midLongListener = AddMidLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, long)> callback, std::function<long(GJBaseGameLayer*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty() && min < max) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			g_midLongs[fmt::format("{}/{}-long", modID, name)] = MidLongSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
+		return ListenerResult::Stop;
+	});
+	midLongListener.leak();
+
+	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(long)> callback, std::function<long()> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty() && min < max) {
+			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			g_editLongs[fmt::format("{}/{}-long", modID, name)] = EditorLongSetting{
+				fmt::format("{}", name),
+				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+				callback, initialValue,
+				min, max,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
+		return ListenerResult::Stop;
+	});
+	editLongListener.leak();
 }
 
 // keep for debugging
 double dummyValue = 150.;
+long otherDummy = 5000;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
 	std::string desc;
 	const std::string& trueDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
-	g_midDoubles["dummy-double-setting-double"_spr] = MidDoubleSetting{
-		"dummy double setting",
-		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
-		[](GJBaseGameLayer* gjbgl, double value) {
-			log::info("gjbgl: {}", gjbgl != nullptr);
-			log::info("value: {}", value);
-			dummyValue = value;
-		},
-		[](GJBaseGameLayer* gjbgl) {
-			log::info("gjbgl: {}", gjbgl != nullptr);
-			return dummyValue;
-		},
-		-200.f, 200.f,
-		trueDesc
-	};
-	g_preDoubles["dummy-double-setting-double"_spr] = PreDoubleSetting{
-		"dummy double setting",
-		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
-		[](GJGameLevel* gjlvl, double value) {
-			log::info("gjbgl: {}", gjlvl != nullptr);
-			log::info("value: {}", value);
-			dummyValue = value;
-		},
-		[](GJGameLevel* gjlvl) {
-			log::info("gjbgl: {}", gjlvl != nullptr);
-			return dummyValue;
-		},
-		-200.f, 200.f,
-		trueDesc
-	};
-	g_editDoubles["dummy-double-setting-double"_spr] = EditorDoubleSetting{
-		"dummy double setting",
-		fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
-		[](double value) {
-			log::info("value: {}", value);
-			dummyValue = value;
-		},
-		[]() {
-			return dummyValue;
-		},
-		-200.f, 200.f,
-		trueDesc
-	};
+	for (int i = 0; i < 20; i++) {
+		g_midDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = MidDoubleSetting{
+			fmt::format("dummy double setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](GJBaseGameLayer* gjbgl, double value) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				log::info("value: {}", value);
+				dummyValue = value;
+			},
+			[](GJBaseGameLayer* gjbgl) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				return dummyValue;
+			},
+			-200.f, 200.f,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_preDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = PreDoubleSetting{
+			fmt::format("dummy double setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](GJGameLevel* gjlvl, double value) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				log::info("value: {}", value);
+				dummyValue = value;
+			},
+			[](GJGameLevel* gjlvl) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				return dummyValue;
+			},
+			-200.f, 200.f,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_editDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = EditorDoubleSetting{
+			fmt::format("dummy double setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](double value) {
+				log::info("value: {}", value);
+				dummyValue = value;
+			},
+			[]() {
+				return dummyValue;
+			},
+			-200.f, 200.f,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_midLongs[fmt::format("dummy-double-setting-long-{}"_spr, i)] = MidLongSetting{
+			fmt::format("dummy long setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](GJBaseGameLayer* gjbgl, long value) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				log::info("value: {}", value);
+				otherDummy = value;
+			},
+			[](GJBaseGameLayer* gjbgl) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				return otherDummy;
+			},
+			-1000, 1000,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_preLongs[fmt::format("dummy-double-setting-long-{}"_spr, i)] = PreLongSetting{
+			fmt::format("dummy long setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](GJGameLevel* gjlvl, long value) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				log::info("value: {}", value);
+				otherDummy = value;
+			},
+			[](GJGameLevel* gjlvl) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				return otherDummy;
+			},
+			-1000, 1000,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_editLongs[fmt::format("dummy-double-setting-long-{}"_spr, i)] = EditorLongSetting{
+			fmt::format("dummy long setting #{}", i),
+			fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
+			[](long value) {
+				log::info("value: {}", value);
+				dummyValue = value;
+			},
+			[]() {
+				return otherDummy;
+			},
+			-1000, 1000,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+	}
 }
 
 // remove ifdefs once desktop also gets CBF overrides --raydeeux

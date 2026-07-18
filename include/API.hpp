@@ -49,7 +49,6 @@ using MidInitialCallbackDouble = std::function<double(GJBaseGameLayer*)>;
 using EditDoubleCallback = std::function<void(double)>;
 using EditInitialCallbackDouble = std::function<double()>;
 
-// THE THING TO DO: ADD MIN AND MAX SPECIFIERS
 #define DOUBLEEVENT(evname, changeInDouble, call) \
 class Add##evname##DoubleEvent : public Event<Add##evname##DoubleEvent, bool(std::string_view name, std::string_view id, changeInDouble callback, call initialValue, double min, double max, std::string_view desc, geode::Mod* mod)> { \
 public: \
@@ -78,6 +77,44 @@ public: \
 DOUBLEEVENT(Pre, PreDoubleCallback, PreInitialCallbackDouble)
 DOUBLEEVENT(Mid, MidDoubleCallback, MidInitialCallbackDouble)
 DOUBLEEVENT(Edit, EditDoubleCallback, EditInitialCallbackDouble)
+
+using PreLongCallback = std::function<void(GJGameLevel*, long)>;
+using PreInitialCallbackLong = std::function<long(GJGameLevel*)>;
+
+using MidLongCallback = std::function<void(GJBaseGameLayer*, long)>;
+using MidInitialCallbackLong = std::function<long(GJBaseGameLayer*)>;
+
+using EditLongCallback = std::function<void(long)>;
+using EditInitialCallbackLong = std::function<long()>;
+
+#define LONGEVENT(evname, changeInLong, call) \
+class Add##evname##LongEvent : public Event<Add##evname##LongEvent, bool(std::string_view name, std::string_view id, changeInLong callback, call initialValue, long min, long max, std::string_view desc, geode::Mod* mod)> { \
+public: \
+    using Event::Event; \
+    std::string m_name; \
+    std::string m_id; \
+    changeInLong m_callback; \
+    call m_initialValue; \
+    long m_min; \
+    long m_max; \
+    std::string m_description; \
+    geode::Mod* m_mod; \
+ \
+    Add##evname##LongEvent(std::string_view name, std::string_view id, changeInLong callback, call initialValue, long min, long max, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_min(min), m_max(max), m_description(desc), m_mod(mod) {}; \
+ \
+    READONLY(m_name, Name, std::string); \
+    READONLY(m_id, ID, std::string); \
+    READONLY(m_callback, Callback, changeInLong); \
+    READONLY(m_initialValue, InitialVal, call); \
+    READONLY(m_description, Desc, std::string); \
+    READONLY(m_mod, Mod, geode::Mod*); \
+    READONLY(m_min, Min, long); \
+    READONLY(m_max, Max, long); \
+};
+
+LONGEVENT(Pre, PreLongCallback, PreInitialCallbackLong)
+LONGEVENT(Mid, MidLongCallback, MidInitialCallbackLong)
+LONGEVENT(Edit, EditLongCallback, EditInitialCallbackLong)
 
 namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <typename T>
@@ -126,5 +163,20 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <>
     void addEditorLevelSettingReactiveNumeric<double>(std::string_view name, std::string_view id, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, double min, double max, std::string_view desc) {
         AddEditDoubleEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
+    }
+
+    template <>
+    void addPreLevelSettingReactiveNumeric<long>(std::string_view name, std::string_view id, PreLongCallback callback, PreInitialCallbackLong initialValue, long min, long max, std::string_view desc) {
+        AddPreLongEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
+    }
+
+    template <>
+    void addMidLevelSettingReactiveNumeric<long>(std::string_view name, std::string_view id, MidLongCallback callback, MidInitialCallbackLong initialValue, long min, long max, std::string_view desc) {
+        AddMidLongEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
+    }
+
+    template <>
+    void addEditorLevelSettingReactiveNumeric<long>(std::string_view name, std::string_view id, EditLongCallback callback, EditInitialCallbackLong initialValue, long min, long max, std::string_view desc) {
+        AddEditLongEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
     }
 }
