@@ -981,7 +981,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				desc = information.m_description;
 			} else if (senderTag < editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editLongs.begin(), senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
+				const auto& information = std::next(g_editStrings.begin(), senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -1015,7 +1015,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				desc = information.m_description;
 			} else if (senderTag < midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midLongs.begin(), senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
+				const auto& information = std::next(g_midStrings.begin(), senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -1049,7 +1049,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				desc = information.m_description;
 			} else if (senderTag < preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preLongs.begin(), senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
+				const auto& information = std::next(g_preStrings.begin(), senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
