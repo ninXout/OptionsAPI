@@ -99,10 +99,12 @@ std::map<std::string, PreLongSetting> g_preLongs;
 std::map<std::string, MidLongSetting> g_midLongs;
 std::map<std::string, EditorLongSetting> g_editLongs;
 
+#define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and more" : "", mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : "")) ? fmt::format("{}", desc) : fmt::format("<cl>(From {} by {}{})</c>\n{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : "", desc)
+
 $execute {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preToggles[fmt::format("{}/{}-toggle", modID, name)] = PreToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -117,7 +119,7 @@ $execute {
 
 	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midToggles[fmt::format("{}/{}-toggle", modID, name)] = MidToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -132,7 +134,7 @@ $execute {
 
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editToggles[fmt::format("{}/{}-toggle", modID, name)] = EditorToggleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -147,7 +149,7 @@ $execute {
 
 	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preDoubles[fmt::format("{}/{}-double", modID, name)] = PreDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -163,7 +165,7 @@ $execute {
 
 	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midDoubles[fmt::format("{}/{}-double", modID, name)] = MidDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -179,7 +181,7 @@ $execute {
 
 	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editDoubles[fmt::format("{}/{}-double", modID, name)] = EditorDoubleSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -195,7 +197,7 @@ $execute {
 
 	auto preLongListener = AddPreLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, long)> callback, std::function<long(GJGameLevel*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preLongs[fmt::format("{}/{}-long", modID, name)] = PreLongSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -211,7 +213,7 @@ $execute {
 
 	auto midLongListener = AddMidLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, long)> callback, std::function<long(GJBaseGameLayer*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midLongs[fmt::format("{}/{}-long", modID, name)] = MidLongSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -227,7 +229,7 @@ $execute {
 
 	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(long)> callback, std::function<long()> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editLongs[fmt::format("{}/{}-long", modID, name)] = EditorLongSetting{
 				fmt::format("{}", name),
 				fmt::format("{} by {}{}", mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and More" : ""),
@@ -248,7 +250,7 @@ long otherDummy = 5000;
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
 	std::string desc;
-	const std::string& trueDesc = desc.empty() ? fmt::format("<cl>(From {})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", mod->getName(), mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("{}", desc) : fmt::format("<cl>(From {})</c>\n{}", mod->getName(), desc);
+	const std::string& trueDesc = FORMATTED_DESC;
 	for (int i = 0; i < 20; i++) {
 		g_midDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = MidDoubleSetting{
 			fmt::format("dummy double setting #{}", i),
