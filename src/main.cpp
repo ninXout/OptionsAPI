@@ -378,6 +378,20 @@ $on_game(Loaded) {
 		return nullptr;\
 	}
 
+#define POSITION_AND_SETUP_CONTAINER(l, w)\
+	CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");\
+	label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);\
+	container->addChild(inputBox);\
+	container->addChild(label);\
+	container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));\
+	this->m_buttonMenu->addChild(container);\
+	container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));\
+	container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));\
+	container->setPositionY(dummyCheckbox->getPositionY() - 5.f);\
+	container->ignoreAnchorPointForPosition(true);\
+	container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));\
+	container->setUserFlag("not-a-toggle"_spr, true);
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -434,22 +448,28 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 				callback(gjlvl, clamped);
 			});
 
-			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
+			POSITION_AND_SETUP_CONTAINER(l, w)
 
-			container->addChild(inputBox);
-			container->addChild(label);
+			index++;
+		}
 
-			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
+		for (const auto& [m, x] : g_preLongs) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
 
-			this->m_buttonMenu->addChild(container);
+			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_level));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Int);
+			inputBox->setCallback([me = inputBox, gjlvl = this->m_level, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2.), min, max);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
+				callback(gjlvl, clamped);
+			});
 
-			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
-			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
-			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
-			container->ignoreAnchorPointForPosition(true); // fuck you robtop
-			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
-			container->setUserFlag("not-a-toggle"_spr, true);
+			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
 		}
@@ -679,22 +699,28 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				callback(gjbgl, clamped);
 			});
 
-			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
+			POSITION_AND_SETUP_CONTAINER(l, w)
 
-			container->addChild(inputBox);
-			container->addChild(label);
+			index++;
+		}
 
-			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
+		for (const auto& [m, x] : g_midLongs) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
 
-			this->m_buttonMenu->addChild(container);
+			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_baseGameLayer));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Int);
+			inputBox->setCallback([me = inputBox, gjbgl = this->m_baseGameLayer, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
+				callback(gjbgl, clamped);
+			});
 
-			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
-			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
-			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
-			container->ignoreAnchorPointForPosition(true); // fuck you robtop
-			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
-			container->setUserFlag("not-a-toggle"_spr, true);
+			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
 		}
@@ -784,7 +810,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_editToggles.size() + EDIT_TOGGLES_START: {}", g_editToggles.size() + EDIT_TOGGLES_START);
 			std::string name, desc;
-			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size();
+			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size();
 			if (senderTag < editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
 				const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
@@ -793,6 +819,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			} else if (senderTag < editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - editTogglesCount - EDIT_TOGGLES_START);
 				const auto& information = std::next(g_editDoubles.begin(), senderTag - editTogglesCount - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_editLongs.begin(), senderTag - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -808,7 +839,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
 			std::string name, desc;
-			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size();
+			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size();
 			if (senderTag < midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
 				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
@@ -817,6 +848,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			} else if (senderTag < midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - midTogglesCount - MID_TOGGLES_START);
 				const auto& information = std::next(g_midDoubles.begin(), senderTag - midTogglesCount - MID_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
+				const auto& information = std::next(g_midLongs.begin(), senderTag - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -832,7 +868,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_preToggles.size() + PRE_TOGGLES_START: {}", g_preToggles.size() + PRE_TOGGLES_START);
 			std::string name, desc;
-			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size();
+			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size();
 			if (senderTag < preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
@@ -841,6 +877,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			} else if (senderTag < preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - preTogglesCount - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preDoubles.begin(), senderTag - preTogglesCount - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preLongs.begin(), senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -896,22 +937,28 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 				callback(clamped);
 			});
 
-			CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");
-			label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);
+			POSITION_AND_SETUP_CONTAINER(l, w)
 
-			container->addChild(inputBox);
-			container->addChild(label);
+			index++;
+		}
 
-			container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));
+		for (const auto& [m, x] : g_editLongs) {
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
 
-			this->m_buttonMenu->addChild(container);
+			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial());
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Int);
+			inputBox->setCallback([me = inputBox, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
+				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
+				callback(clamped);
+			});
 
-			container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));
-			container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));
-			container->setPositionY(dummyCheckbox->getPositionY() - 5.f); // why do we need to do this????? fuck robtop's stupid disregard for anchor points wtf !!!!!!
-			container->ignoreAnchorPointForPosition(true); // fuck you robtop
-			container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));
-			container->setUserFlag("not-a-toggle"_spr, true);
+			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
 		}
