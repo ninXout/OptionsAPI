@@ -87,6 +87,30 @@ struct EditorLongSetting {
 	std::string m_description;
 };
 
+struct PreStringSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJGameLevel*, std::string)> m_callback;
+	std::function<std::string(GJGameLevel*)> m_initial;
+	std::string m_description;
+};
+
+struct MidStringSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(GJBaseGameLayer*, std::string)> m_callback;
+	std::function<std::string(GJBaseGameLayer*)> m_initial;
+	std::string m_description;
+};
+
+struct EditorStringSetting {
+	std::string m_name;
+	std::string m_modID;
+	std::function<void(std::string)> m_callback;
+	std::function<std::string()> m_initial;
+	std::string m_description;
+};
+
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
 std::map<std::string, EditorToggleSetting> g_editToggles;
@@ -98,6 +122,10 @@ std::map<std::string, EditorDoubleSetting> g_editDoubles;
 std::map<std::string, PreLongSetting> g_preLongs;
 std::map<std::string, MidLongSetting> g_midLongs;
 std::map<std::string, EditorLongSetting> g_editLongs;
+
+std::map<std::string, PreStringSetting> g_preStrings;
+std::map<std::string, MidStringSetting> g_midStrings;
+std::map<std::string, EditorStringSetting> g_editStrings;
 
 #define MOD_NAME_DEVS_OTHERS mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and others" : ""
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
@@ -244,11 +272,54 @@ $execute {
 		return ListenerResult::Stop;
 	});
 	editLongListener.leak();
+
+	auto preStringListener = AddPreStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, std::string)> callback, std::function<std::string(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_preStrings[fmt::format("{}/{}-pre-string", modID, name)] = PreStringSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	preStringListener.leak();
+
+	auto midStringListener = AddMidStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, std::string)> callback, std::function<std::string(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_midStrings[fmt::format("{}/{}-mid-string", modID, name)] = MidStringSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	midStringListener.leak();
+
+	auto editStringListener = AddEditStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(std::string)> callback, std::function<std::string()> initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_editStrings[fmt::format("{}/{}-edit-string", modID, name)] = EditorStringSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	editStringListener.leak();
 }
 
 // keep for debugging
 double dummyValue = 150.;
 long otherDummy = 5000;
+std::string strDummy = "shane hollander";
 $on_game(Loaded) {
 	Mod* mod = Mod::get();
 	std::string desc;
@@ -338,6 +409,46 @@ $on_game(Loaded) {
 				return otherDummy;
 			},
 			-1000, 1000,
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_midStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = MidStringSetting{
+			fmt::format("dummy string setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJBaseGameLayer* gjbgl, std::string value) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				log::info("value: {}", value);
+				strDummy = value;
+			},
+			[](GJBaseGameLayer* gjbgl) {
+				log::info("gjbgl: {}", gjbgl != nullptr);
+				return strDummy;
+			},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_preStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = PreStringSetting{
+			fmt::format("dummy string setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJGameLevel* gjlvl, std::string value) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				log::info("value: {}", value);
+				strDummy = value;
+			},
+			[](GJGameLevel* gjlvl) {
+				log::info("gjbgl: {}", gjlvl != nullptr);
+				return strDummy;
+			},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_editStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = EditorStringSetting{
+			fmt::format("dummy string setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](std::string value) {
+				log::info("value: {}", value);
+				strDummy = value;
+			},
+			[]() {
+				return strDummy;
+			},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
 	}
@@ -474,6 +585,25 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			});
 
 			POSITION_AND_SETUP_CONTAINER(m, x)
+
+			index++;
+		}
+
+		for (const auto& [n, y] : g_preStrings) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_level));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Any);
+			inputBox->setCallback([gjlvl = this->m_level, callback = y.m_callback](const std::string& input) {
+				callback(gjlvl, input);
+			});
+
+			POSITION_AND_SETUP_CONTAINER(n, y)
 
 			index++;
 		}
@@ -728,6 +858,25 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			index++;
 		}
+
+		for (const auto& [n, y] : g_midStrings) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_baseGameLayer));
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Any);
+			inputBox->setCallback([gjbgl = this->m_baseGameLayer, callback = y.m_callback](const std::string& input) {
+				callback(gjbgl, input);
+			});
+
+			POSITION_AND_SETUP_CONTAINER(n, y)
+
+			index++;
+		}
 	}
 
 	void didToggle(int opt) {
@@ -814,7 +963,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_editToggles.size() + EDIT_TOGGLES_START: {}", g_editToggles.size() + EDIT_TOGGLES_START);
 			std::string name, desc;
-			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size();
+			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size(), editStringsCount = g_editStrings.size();
 			if (senderTag < editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
 				const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
@@ -830,6 +979,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				const auto& information = std::next(g_editLongs.begin(), senderTag - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
+			} else if (senderTag < editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_editLongs.begin(), senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
 			}
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
@@ -843,7 +997,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
 			std::string name, desc;
-			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size();
+			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size(), midStringsCount = g_midStrings.size();
 			if (senderTag < midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
 				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
@@ -859,6 +1013,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				const auto& information = std::next(g_midLongs.begin(), senderTag - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
+			} else if (senderTag < midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
+				const auto& information = std::next(g_midLongs.begin(), senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
 			}
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
@@ -872,7 +1031,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_preToggles.size() + PRE_TOGGLES_START: {}", g_preToggles.size() + PRE_TOGGLES_START);
 			std::string name, desc;
-			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size();
+			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size(), preStringsCount = g_preStrings.size();
 			if (senderTag < preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
@@ -886,6 +1045,11 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			} else if (senderTag < preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preLongs.begin(), senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preLongs.begin(), senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -963,6 +1127,26 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			});
 
 			POSITION_AND_SETUP_CONTAINER(m, x)
+
+			index++;
+		}
+
+
+		for (const auto& [n, y] : g_editStrings) {
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial());
+			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			inputBox->setString(stupidPlaceholder, false);
+			inputBox->setCommonFilter(CommonFilter::Any);
+			inputBox->setCallback([callback = y.m_callback](const std::string& input) {
+				callback(input);
+			});
+
+			POSITION_AND_SETUP_CONTAINER(n, y)
 
 			index++;
 		}
