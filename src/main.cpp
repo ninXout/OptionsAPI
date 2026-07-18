@@ -378,14 +378,14 @@ $on_game(Loaded) {
 		return nullptr;\
 	}
 
-#define POSITION_AND_SETUP_CONTAINER(l, w)\
-	CCLabelBMFont* label = CCLabelBMFont::create(fmt::format("{}", w.m_name).c_str(), "bigFont.fnt");\
+#define POSITION_AND_SETUP_CONTAINER(someKey, someValue)\
+	CCLabelBMFont* label = CCLabelBMFont::create(someValue.m_name.c_str(), "bigFont.fnt");\
 	label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);\
 	container->addChild(inputBox);\
 	container->addChild(label);\
 	container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));\
 	this->m_buttonMenu->addChild(container);\
-	container->setID(fmt::format("{}"_spr, geode::utils::string::replace(l, "/", "-")));\
+	container->setID(fmt::format("{}"_spr, geode::utils::string::replace(someKey, "/", "-")));\
 	container->setPosition(dummyCheckbox->getPosition() - (dummyCheckbox->getContentSize() / 2.f));\
 	container->setPositionY(dummyCheckbox->getPositionY() - 5.f);\
 	container->ignoreAnchorPointForPosition(true);\
