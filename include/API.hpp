@@ -116,6 +116,40 @@ LONGEVENT(Pre, PreLongCallback, PreInitialCallbackLong)
 LONGEVENT(Mid, MidLongCallback, MidInitialCallbackLong)
 LONGEVENT(Edit, EditLongCallback, EditInitialCallbackLong)
 
+using PreStringCallback = std::function<void(GJGameLevel*, std::string)>;
+using PreInitialCallbackString = std::function<std::string(GJGameLevel*)>;
+
+using MidStringCallback = std::function<void(GJBaseGameLayer*, std::string)>;
+using MidInitialCallbackString = std::function<std::string(GJBaseGameLayer*)>;
+
+using EditStringCallback = std::function<void(std::string)>;
+using EditInitialCallbackString = std::function<std::string()>;
+
+#define STRINGEVENT(evname, changeInString, call) \
+class Add##evname##StringEvent : public Event<Add##evname##StringEvent, bool(std::string_view name, std::string_view id, changeInString callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+public: \
+    using Event::Event; \
+    std::string m_name; \
+    std::string m_id; \
+    changeInString m_callback; \
+    call m_initialValue; \
+    std::string m_description; \
+    geode::Mod* m_mod; \
+ \
+    Add##evname##StringEvent(std::string_view name, std::string_view id, changeInString callback, call initialValue, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_description(desc), m_mod(mod) {}; \
+ \
+    READONLY(m_name, Name, std::string); \
+    READONLY(m_id, ID, std::string); \
+    READONLY(m_callback, Callback, changeInString); \
+    READONLY(m_initialValue, InitialVal, call); \
+    READONLY(m_description, Desc, std::string); \
+    READONLY(m_mod, Mod, geode::Mod*); \
+};
+
+STRINGEVENT(Pre, PreStringCallback, PreInitialCallbackString)
+STRINGEVENT(Mid, MidStringCallback, MidInitialCallbackString)
+STRINGEVENT(Edit, EditStringCallback, EditInitialCallbackString)
+
 namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <typename T>
     void addPreLevelSetting(std::string_view name, std::string_view id, std::function<void(GJGameLevel*)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
@@ -134,6 +168,15 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
 
     template <typename T>
     void addEditorLevelSettingReactiveNumeric(std::string_view name, std::string_view id, std::function<void(T)> callback, std::function<T()> initialValue, T min, T max, std::string_view desc);
+
+    template <typename T>
+    void addPreLevelSettingReactiveNonNumeric(std::string_view name, std::string_view id, std::function<void(GJGameLevel*, T)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
+
+    template <typename T>
+    void addMidLevelSettingReactiveNonNumeric(std::string_view name, std::string_view id, std::function<void(GJBaseGameLayer*, T)> callback, std::function<T(GJBaseGameLayer*)> initialValue, std::string_view desc);
+
+    template <typename T>
+    void addEditorLevelSettingReactiveNonNumeric(std::string_view name, std::string_view id, std::function<void(T)> callback, std::function<T()> initialValue, std::string_view desc);
 
     template <>
     void addPreLevelSetting<bool>(std::string_view name, std::string_view id, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc) {
@@ -178,5 +221,20 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <>
     void addEditorLevelSettingReactiveNumeric<long>(std::string_view name, std::string_view id, EditLongCallback callback, EditInitialCallbackLong initialValue, long min, long max, std::string_view desc) {
         AddEditLongEvent().send(name, id, callback, initialValue, min, max, desc, geode::getMod());
+    }
+
+    template <>
+    void addPreLevelSettingReactiveNonNumeric<std::string>(std::string_view name, std::string_view id, PreStringCallback callback, PreInitialCallbackString initialValue, std::string_view desc) {
+        AddPreStringEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    template <>
+    void addMidLevelSettingReactiveNonNumeric<std::string>(std::string_view name, std::string_view id, MidStringCallback callback, MidInitialCallbackString initialValue, std::string_view desc) {
+        AddMidStringEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    template <>
+    void addEditorLevelSettingReactiveNonNumeric<std::string>(std::string_view name, std::string_view id, EditStringCallback callback, EditInitialCallbackString initialValue, std::string_view desc) {
+        AddEditStringEvent().send(name, id, callback, initialValue, desc, geode::getMod());
     }
 }
