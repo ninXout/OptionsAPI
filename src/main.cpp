@@ -787,6 +787,43 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 			index++;
 		}
+
+		for (const auto& [o, z] : g_preLabeledButtons) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
+			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
+				callback(this->m_level);
+			});
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
+			z.m_initial(this->m_level);
+
+			POSITION_AND_SETUP_CONTAINER(o, z)
+
+			index++;
+		}
+
+		for (const auto& [p, a] : g_preGeodeButtonWithLabels) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			geode::Button* primaryElement = a.m_button.data();
+			primaryElement->setActivateCallback([callback = a.m_callback, this]() {
+				callback(this->m_level);
+			});
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
+			a.m_initial(this->m_level);
+
+			POSITION_AND_SETUP_CONTAINER(p, a)
+			MAKE_LABEL(a)
+
+			index++;
+		}
 	}
 
 	void didToggle(int opt) {
@@ -1057,6 +1094,43 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(n, y)
 			MAKE_LABEL(y)
+
+			index++;
+		}
+
+		for (const auto& [o, z] : g_midLabeledButtons) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
+			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
+				callback(this->m_baseGameLayer);
+			});
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
+			z.m_initial(this->m_baseGameLayer);
+
+			POSITION_AND_SETUP_CONTAINER(o, z)
+
+			index++;
+		}
+
+		for (const auto& [p, a] : g_midGeodeButtonWithLabels) {
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			geode::Button* primaryElement = a.m_button.data();
+			primaryElement->setActivateCallback([callback = a.m_callback, this]() {
+				callback(this->m_baseGameLayer);
+			});
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
+			a.m_initial(this->m_baseGameLayer);
+
+			POSITION_AND_SETUP_CONTAINER(p, a)
+			MAKE_LABEL(a)
 
 			index++;
 		}
@@ -1377,6 +1451,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 				callback();
 			});
 			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
+			z.m_initial();
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
@@ -1390,7 +1465,11 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			geode::Button* primaryElement = a.m_button.data();
+			primaryElement->setActivateCallback([callback = a.m_callback]() {
+				callback();
+			});
 			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
+			a.m_initial();
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
