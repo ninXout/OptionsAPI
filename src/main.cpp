@@ -140,6 +140,7 @@ struct PreGeodeButtonWithLabelSetting {
 	std::string m_modID;
 	PreGeodeButtonWithLabelCallback m_callback;
 	PreInitialCallbackGeodeButtonWithLabel m_initial;
+	geode::Ref<geode::Button> m_button;
 	std::string m_description;
 };
 
@@ -148,6 +149,7 @@ struct MidGeodeButtonWithLabelSetting {
 	std::string m_modID;
 	MidGeodeButtonWithLabelCallback m_callback;
 	MidInitialCallbackGeodeButtonWithLabel m_initial;
+	geode::Ref<geode::Button> m_button;
 	std::string m_description;
 };
 
@@ -156,6 +158,7 @@ struct EditorGeodeButtonWithLabelSetting {
 	std::string m_modID;
 	EditGeodeButtonWithLabelCallback m_callback;
 	EditInitialCallbackGeodeButtonWithLabel m_initial;
+	geode::Ref<geode::Button> m_button;
 	std::string m_description;
 };
 
@@ -413,13 +416,13 @@ $execute {
 	});
 	editLabeledButtonListener.leak();
 
-	auto preGeodeButtonWithLabelListener = AddPreGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+	auto preGeodeButtonWithLabelListener = AddPreGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preGeodeButtonWithLabels[fmt::format("{}/{}-pre-geode-button-with-label", modID, name)] = PreGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
-				callback, initialValue,
+				callback, initialValue, button,
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
@@ -427,13 +430,13 @@ $execute {
 	});
 	preGeodeButtonWithLabelListener.leak();
 
-	auto midGeodeButtonWithLabelListener = AddMidGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+	auto midGeodeButtonWithLabelListener = AddMidGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midGeodeButtonWithLabels[fmt::format("{}/{}-mid-geode-button-with-label", modID, name)] = MidGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
-				callback, initialValue,
+				callback, initialValue, button,
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
@@ -441,13 +444,13 @@ $execute {
 	});
 	midGeodeButtonWithLabelListener.leak();
 
-	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditorGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
-				callback, initialValue,
+				callback, initialValue, button,
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
