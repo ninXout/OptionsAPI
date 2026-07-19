@@ -6,32 +6,32 @@ using namespace geode::prelude;
 struct PreToggleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJGameLevel*)> m_callback;
-	std::function<bool(GJGameLevel*)> m_initial;
+	PreToggleCallback m_callback;
+	PreInitialCallback m_initial;
 	std::string m_description;
 };
 
 struct MidToggleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJBaseGameLayer*)> m_callback;
-	std::function<bool(GJBaseGameLayer*)> m_initial;
+	MidToggleCallback m_callback;
+	MidInitialCallback m_initial;
 	std::string m_description;
 };
 
 struct EditorToggleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void()> m_callback;
-	std::function<bool()> m_initial;
+	EditToggleCallback m_callback;
+	EditInitialCallback m_initial;
 	std::string m_description;
 };
 
 struct PreDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJGameLevel*, double)> m_callback;
-	std::function<double(GJGameLevel*)> m_initial;
+	PreDoubleCallback m_callback;
+	PreInitialCallbackDouble m_initial;
 	double m_min;
 	double m_max;
 	std::string m_description;
@@ -40,8 +40,8 @@ struct PreDoubleSetting {
 struct MidDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJBaseGameLayer*, double)> m_callback;
-	std::function<double(GJBaseGameLayer*)> m_initial;
+	MidDoubleCallback m_callback;
+	MidInitialCallbackDouble m_initial;
 	double m_min;
 	double m_max;
 	std::string m_description;
@@ -50,8 +50,8 @@ struct MidDoubleSetting {
 struct EditorDoubleSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(double)> m_callback;
-	std::function<double()> m_initial;
+	EditDoubleCallback m_callback;
+	EditInitialCallbackDouble m_initial;
 	double m_min;
 	double m_max;
 	std::string m_description;
@@ -60,8 +60,8 @@ struct EditorDoubleSetting {
 struct PreLongSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJGameLevel*, long)> m_callback;
-	std::function<long(GJGameLevel*)> m_initial;
+	PreLongCallback m_callback;
+	PreInitialCallbackLong m_initial;
 	long m_min;
 	long m_max;
 	std::string m_description;
@@ -70,8 +70,8 @@ struct PreLongSetting {
 struct MidLongSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJBaseGameLayer*, long)> m_callback;
-	std::function<long(GJBaseGameLayer*)> m_initial;
+	MidLongCallback m_callback;
+	MidInitialCallbackLong m_initial;
 	long m_min;
 	long m_max;
 	std::string m_description;
@@ -80,8 +80,8 @@ struct MidLongSetting {
 struct EditorLongSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(long)> m_callback;
-	std::function<long()> m_initial;
+	EditLongCallback m_callback;
+	EditInitialCallbackLong m_initial;
 	long m_min;
 	long m_max;
 	std::string m_description;
@@ -90,24 +90,72 @@ struct EditorLongSetting {
 struct PreStringSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJGameLevel*, std::string)> m_callback;
-	std::function<std::string(GJGameLevel*)> m_initial;
+	PreStringCallback m_callback;
+	PreInitialCallbackString m_initial;
 	std::string m_description;
 };
 
 struct MidStringSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(GJBaseGameLayer*, std::string)> m_callback;
-	std::function<std::string(GJBaseGameLayer*)> m_initial;
+	MidStringCallback m_callback;
+	MidInitialCallbackString m_initial;
 	std::string m_description;
 };
 
 struct EditorStringSetting {
 	std::string m_name;
 	std::string m_modID;
-	std::function<void(std::string)> m_callback;
-	std::function<std::string()> m_initial;
+	EditStringCallback m_callback;
+	EditInitialCallbackString m_initial;
+	std::string m_description;
+};
+
+struct PreLabeledButtonSetting {
+	std::string m_name;
+	std::string m_modID;
+	PreLabeledButtonCallback m_callback;
+	PreInitialCallbackLabeledButton m_initial;
+	std::string m_description;
+};
+
+struct MidLabeledButtonSetting {
+	std::string m_name;
+	std::string m_modID;
+	MidLabeledButtonCallback m_callback;
+	MidInitialCallbackLabeledButton m_initial;
+	std::string m_description;
+};
+
+struct EditorLabeledButtonSetting {
+	std::string m_name;
+	std::string m_modID;
+	EditLabeledButtonCallback m_callback;
+	EditInitialCallbackLabeledButton m_initial;
+	std::string m_description;
+};
+
+struct PreGeodeButtonWithLabelSetting {
+	std::string m_name;
+	std::string m_modID;
+	PreGeodeButtonWithLabelCallback m_callback;
+	PreInitialCallbackGeodeButtonWithLabel m_initial;
+	std::string m_description;
+};
+
+struct MidGeodeButtonWithLabelSetting {
+	std::string m_name;
+	std::string m_modID;
+	MidGeodeButtonWithLabelCallback m_callback;
+	MidInitialCallbackGeodeButtonWithLabel m_initial;
+	std::string m_description;
+};
+
+struct EditorGeodeButtonWithLabelSetting {
+	std::string m_name;
+	std::string m_modID;
+	EditGeodeButtonWithLabelCallback m_callback;
+	EditInitialCallbackGeodeButtonWithLabel m_initial;
 	std::string m_description;
 };
 
@@ -127,12 +175,20 @@ std::map<std::string, PreStringSetting> g_preStrings;
 std::map<std::string, MidStringSetting> g_midStrings;
 std::map<std::string, EditorStringSetting> g_editStrings;
 
+std::map<std::string, PreLabeledButtonSetting> g_preLabeledButtons;
+std::map<std::string, MidLabeledButtonSetting> g_midLabeledButtons;
+std::map<std::string, EditorLabeledButtonSetting> g_editLabeledButtons;
+
+std::map<std::string, PreGeodeButtonWithLabelSetting> g_preGeodeButtonWithLabels;
+std::map<std::string, MidGeodeButtonWithLabelSetting> g_midGeodeButtonWithLabels;
+std::map<std::string, EditorGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabels;
+
 #define MOD_NAME_DEVS_OTHERS mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and others" : ""
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
-#define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what toggling this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
+#define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what editing this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
 
 $execute {
-	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*)> callback, std::function<bool(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preToggles[fmt::format("{}/{}-pre-toggle", modID, name)] = PreToggleSetting{
@@ -147,7 +203,7 @@ $execute {
 	});
 	preToggleListener.leak();
 
-	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*)> callback, std::function<bool(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, MidToggleCallback callback, MidInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midToggles[fmt::format("{}/{}-mid-toggle", modID, name)] = MidToggleSetting{
@@ -162,7 +218,7 @@ $execute {
 	});
 	midToggleListener.leak();
 
-	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, std::function<void()> callback, std::function<bool()> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, EditToggleCallback callback, EditInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editToggles[fmt::format("{}/{}-edit-toggle", modID, name)] = EditorToggleSetting{
@@ -177,7 +233,7 @@ $execute {
 	});
 	editToggleListener.leak();
 
-	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, double)> callback, std::function<double(GJGameLevel*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
+	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preDoubles[fmt::format("{}/{}-pre-double", modID, name)] = PreDoubleSetting{
@@ -193,7 +249,7 @@ $execute {
 	});
 	preDoubleListener.leak();
 
-	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, double)> callback, std::function<double(GJBaseGameLayer*)> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
+	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, MidDoubleCallback callback, MidInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midDoubles[fmt::format("{}/{}-mid-double", modID, name)] = MidDoubleSetting{
@@ -209,7 +265,7 @@ $execute {
 	});
 	midDoubleListener.leak();
 
-	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, std::function<void(double)> callback, std::function<double()> initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
+	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editDoubles[fmt::format("{}/{}-edit-double", modID, name)] = EditorDoubleSetting{
@@ -225,7 +281,7 @@ $execute {
 	});
 	editDoubleListener.leak();
 
-	auto preLongListener = AddPreLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, long)> callback, std::function<long(GJGameLevel*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+	auto preLongListener = AddPreLongEvent().listen([](std::string_view name, std::string_view modID, PreLongCallback callback, PreInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preLongs[fmt::format("{}/{}-pre-long", modID, name)] = PreLongSetting{
@@ -241,7 +297,7 @@ $execute {
 	});
 	preLongListener.leak();
 
-	auto midLongListener = AddMidLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, long)> callback, std::function<long(GJBaseGameLayer*)> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+	auto midLongListener = AddMidLongEvent().listen([](std::string_view name, std::string_view modID, MidLongCallback callback, MidInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midLongs[fmt::format("{}/{}-mid-long", modID, name)] = MidLongSetting{
@@ -257,7 +313,7 @@ $execute {
 	});
 	midLongListener.leak();
 
-	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, std::function<void(long)> callback, std::function<long()> initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
+	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, EditLongCallback callback, EditInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editLongs[fmt::format("{}/{}-edit-long", modID, name)] = EditorLongSetting{
@@ -273,7 +329,7 @@ $execute {
 	});
 	editLongListener.leak();
 
-	auto preStringListener = AddPreStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJGameLevel*, std::string)> callback, std::function<std::string(GJGameLevel*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto preStringListener = AddPreStringEvent().listen([](std::string_view name, std::string_view modID, PreStringCallback callback, PreInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preStrings[fmt::format("{}/{}-pre-string", modID, name)] = PreStringSetting{
@@ -287,7 +343,7 @@ $execute {
 	});
 	preStringListener.leak();
 
-	auto midStringListener = AddMidStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(GJBaseGameLayer*, std::string)> callback, std::function<std::string(GJBaseGameLayer*)> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto midStringListener = AddMidStringEvent().listen([](std::string_view name, std::string_view modID, MidStringCallback callback, MidInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midStrings[fmt::format("{}/{}-mid-string", modID, name)] = MidStringSetting{
@@ -301,7 +357,7 @@ $execute {
 	});
 	midStringListener.leak();
 
-	auto editStringListener = AddEditStringEvent().listen([](std::string_view name, std::string_view modID, std::function<void(std::string)> callback, std::function<std::string()> initialValue, std::string_view desc, geode::Mod* mod) {
+	auto editStringListener = AddEditStringEvent().listen([](std::string_view name, std::string_view modID, EditStringCallback callback, EditInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editStrings[fmt::format("{}/{}-edit-string", modID, name)] = EditorStringSetting{
@@ -314,6 +370,90 @@ $execute {
 		return ListenerResult::Stop;
 	});
 	editStringListener.leak();
+
+	auto preLabeledButtonListener = AddPreLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, PreLabeledButtonCallback callback, PreInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_preLabeledButtons[fmt::format("{}/{}-pre-labeled-button", modID, name)] = PreLabeledButtonSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	preLabeledButtonListener.leak();
+
+	auto midLabeledButtonListener = AddMidLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, MidLabeledButtonCallback callback, MidInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_midLabeledButtons[fmt::format("{}/{}-mid-labeled-button", modID, name)] = MidLabeledButtonSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	midLabeledButtonListener.leak();
+
+	auto editLabeledButtonListener = AddEditLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, EditLabeledButtonCallback callback, EditInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_editLabeledButtons[fmt::format("{}/{}-edit-labeled-button", modID, name)] = EditorLabeledButtonSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	editLabeledButtonListener.leak();
+
+	auto preGeodeButtonWithLabelListener = AddPreGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_preGeodeButtonWithLabels[fmt::format("{}/{}-pre-geode-button-with-label", modID, name)] = PreGeodeButtonWithLabelSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	preGeodeButtonWithLabelListener.leak();
+
+	auto midGeodeButtonWithLabelListener = AddMidGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_midGeodeButtonWithLabels[fmt::format("{}/{}-mid-geode-button-with-label", modID, name)] = MidGeodeButtonWithLabelSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	midGeodeButtonWithLabelListener.leak();
+
+	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc, geode::Mod* mod) {
+		if (mod && !name.empty()) {
+			const std::string& lockedInDesc = FORMATTED_DESC;
+			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditorGeodeButtonWithLabelSetting{
+				fmt::format("{}", name),
+				FORMATTED_MOD_INFO,
+				callback, initialValue,
+				lockedInDesc
+			};
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		return ListenerResult::Stop;
+	});
+	editGeodeButtonWithLabelListener.leak();
 }
 
 // keep for debugging

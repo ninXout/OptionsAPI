@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <Geode/ui/Button.hpp>
 
 using namespace geode::prelude;
 
@@ -150,6 +151,74 @@ STRINGEVENT(Pre, PreStringCallback, PreInitialCallbackString)
 STRINGEVENT(Mid, MidStringCallback, MidInitialCallbackString)
 STRINGEVENT(Edit, EditStringCallback, EditInitialCallbackString)
 
+using PreLabeledButtonCallback = std::function<void(GJGameLevel*, std::string)>;
+using PreInitialCallbackLabeledButton = std::function<void(GJGameLevel*)>;
+
+using MidLabeledButtonCallback = std::function<void(GJBaseGameLayer*, std::string)>;
+using MidInitialCallbackLabeledButton = std::function<void(GJBaseGameLayer*)>;
+
+using EditLabeledButtonCallback = std::function<void(std::string)>;
+using EditInitialCallbackLabeledButton = std::function<void()>;
+
+#define LABELEDBUTTONEVENT(evname, onButtonPress, call) \
+class Add##evname##LabeledButtonEvent : public Event<Add##evname##LabeledButtonEvent, bool(std::string_view name, std::string_view id, onButtonPress callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+public: \
+    using Event::Event; \
+    std::string m_name; \
+    std::string m_id; \
+    onButtonPress m_callback; \
+    call m_initialValue; \
+    std::string m_description; \
+    geode::Mod* m_mod; \
+ \
+    Add##evname##LabeledButtonEvent(std::string_view name, std::string_view id, onButtonPress callback, call initialValue, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_description(desc), m_mod(mod) {}; \
+ \
+    READONLY(m_name, Name, std::string); \
+    READONLY(m_id, ID, std::string); \
+    READONLY(m_callback, Callback, onButtonPress); \
+    READONLY(m_initialValue, InitialVal, call); \
+    READONLY(m_description, Desc, std::string); \
+    READONLY(m_mod, Mod, geode::Mod*); \
+};
+
+LABELEDBUTTONEVENT(Pre, PreLabeledButtonCallback, PreInitialCallbackLabeledButton)
+LABELEDBUTTONEVENT(Mid, MidLabeledButtonCallback, MidInitialCallbackLabeledButton)
+LABELEDBUTTONEVENT(Edit, EditLabeledButtonCallback, EditInitialCallbackLabeledButton)
+
+using PreGeodeButtonWithLabelCallback = std::function<void(GJGameLevel*, std::string, geode::Button*)>;
+using PreInitialCallbackGeodeButtonWithLabel = std::function<void(GJGameLevel*)>;
+
+using MidGeodeButtonWithLabelCallback = std::function<void(GJBaseGameLayer*, std::string, geode::Button*)>;
+using MidInitialCallbackGeodeButtonWithLabel = std::function<void(GJBaseGameLayer*)>;
+
+using EditGeodeButtonWithLabelCallback = std::function<void(std::string, geode::Button*)>;
+using EditInitialCallbackGeodeButtonWithLabel = std::function<void()>;
+
+#define GEODEBUTTONWITHLABELEVENT(evname, onButtonPress, call) \
+class Add##evname##GeodeButtonWithLabelEvent : public Event<Add##evname##GeodeButtonWithLabelEvent, bool(std::string_view name, std::string_view id, onButtonPress callback, call initialValue, std::string_view desc, geode::Mod* mod)> { \
+public: \
+    using Event::Event; \
+    std::string m_name; \
+    std::string m_id; \
+    onButtonPress m_callback; \
+    call m_initialValue; \
+    std::string m_description; \
+    geode::Mod* m_mod; \
+ \
+    Add##evname##GeodeButtonWithLabelEvent(std::string_view name, std::string_view id, onButtonPress callback, call initialValue, std::string_view desc, geode::Mod* mod) : m_name(name), m_id(id), m_callback(callback), m_initialValue(initialValue), m_description(desc), m_mod(mod) {}; \
+ \
+    READONLY(m_name, Name, std::string); \
+    READONLY(m_id, ID, std::string); \
+    READONLY(m_callback, Callback, onButtonPress); \
+    READONLY(m_initialValue, InitialVal, call); \
+    READONLY(m_description, Desc, std::string); \
+    READONLY(m_mod, Mod, geode::Mod*); \
+};
+
+GEODEBUTTONWITHLABELEVENT(Pre, PreGeodeButtonWithLabelCallback, PreInitialCallbackGeodeButtonWithLabel)
+GEODEBUTTONWITHLABELEVENT(Mid, MidGeodeButtonWithLabelCallback, MidInitialCallbackGeodeButtonWithLabel)
+GEODEBUTTONWITHLABELEVENT(Edit, EditGeodeButtonWithLabelCallback, EditInitialCallbackGeodeButtonWithLabel)
+
 namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <typename T>
     void addPreLevelSetting(std::string_view name, std::string_view id, std::function<void(GJGameLevel*)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
@@ -236,5 +305,29 @@ namespace OptionsAPI { // TODO: expand to double, long, and std::string
     template <>
     void addEditorLevelSettingReactiveNonNumeric<std::string>(std::string_view name, std::string_view id, EditStringCallback callback, EditInitialCallbackString initialValue, std::string_view desc) {
         AddEditStringEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addPreLevelLabeledButtonSetting(std::string_view name, std::string_view id, PreLabeledButtonCallback callback, PreInitialCallbackLabeledButton initialValue, std::string_view desc) {
+        AddPreLabeledButtonEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addMidLevelLabeledButtonSetting(std::string_view name, std::string_view id, MidLabeledButtonCallback callback, MidInitialCallbackLabeledButton initialValue, std::string_view desc) {
+        AddMidLabeledButtonEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addEditorLevelLabeledButtonSetting(std::string_view name, std::string_view id, EditLabeledButtonCallback callback, EditInitialCallbackLabeledButton initialValue, std::string_view desc) {
+        AddEditLabeledButtonEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addPreLevelGeodeButtonWithCallbackSetting(std::string_view name, std::string_view id, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc) {
+        AddPreGeodeButtonWithLabelEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addMidLevelGeodeButtonWithCallbackSetting(std::string_view name, std::string_view id, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc) {
+        AddMidGeodeButtonWithLabelEvent().send(name, id, callback, initialValue, desc, geode::getMod());
+    }
+
+    void addEditorLevelGeodeButtonWithCallbackSetting(std::string_view name, std::string_view id, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, std::string_view desc) {
+        AddEditGeodeButtonWithLabelEvent().send(name, id, callback, initialValue, desc, geode::getMod());
     }
 }
