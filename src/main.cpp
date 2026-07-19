@@ -670,7 +670,8 @@ $on_game(Loaded) {
 #define MAKE_LABEL(someValue)\
 	CCLabelBMFont* label = CCLabelBMFont::create(someValue.m_name.c_str(), "bigFont.fnt");\
 	label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);\
-	container->addChild(label);
+	container->addChild(label);\
+	container->updateLayout();
 
 #define POSITION_AND_SETUP_CONTAINER(someKey, someValue)\
 	container->addChild(primaryElement);\
@@ -739,8 +740,8 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 				callback(gjlvl, clamped);
 			});
 
-			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
+			MAKE_LABEL(w)
 
 			index++;
 		}
@@ -761,8 +762,8 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 				callback(gjlvl, clamped);
 			});
 
-			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
+			MAKE_LABEL(x)
 
 			index++;
 		}
@@ -781,8 +782,8 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 				callback(gjlvl, input);
 			});
 
-			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
+			MAKE_LABEL(y)
 
 			index++;
 		}
@@ -1012,8 +1013,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				callback(gjbgl, clamped);
 			});
 
-			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
+			MAKE_LABEL(w)
 
 			index++;
 		}
@@ -1034,8 +1035,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				callback(gjbgl, clamped);
 			});
 
-			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
+			MAKE_LABEL(x)
 
 			index++;
 		}
@@ -1054,8 +1055,8 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 				callback(gjbgl, input);
 			});
 
-			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
+			MAKE_LABEL(y)
 
 			index++;
 		}
@@ -1317,8 +1318,8 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 				callback(clamped);
 			});
 
-			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
+			MAKE_LABEL(w)
 
 			index++;
 		}
@@ -1339,8 +1340,8 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 				callback(clamped);
 			});
 
-			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
+			MAKE_LABEL(x)
 
 			index++;
 		}
@@ -1359,8 +1360,8 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 				callback(input);
 			});
 
-			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
+			MAKE_LABEL(y)
 
 			index++;
 		}
@@ -1375,8 +1376,24 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback](CCMenuItemSpriteExtra* btn) {
 				callback();
 			});
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
+
+			index++;
+		}
+
+		for (const auto& [p, a] : g_editGeodeButtonWithLabels) {
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			geode::Button* primaryElement = a.m_button.data();
+			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
+
+			POSITION_AND_SETUP_CONTAINER(p, a)
+			MAKE_LABEL(a)
 
 			index++;
 		}
