@@ -185,13 +185,13 @@ LABELEDBUTTONEVENT(Pre, PreLabeledButtonCallback, PreInitialCallbackLabeledButto
 LABELEDBUTTONEVENT(Mid, MidLabeledButtonCallback, MidInitialCallbackLabeledButton)
 LABELEDBUTTONEVENT(Edit, EditLabeledButtonCallback, EditInitialCallbackLabeledButton)
 
-using PreGeodeButtonWithLabelCallback = std::function<void(GJGameLevel*, std::string)>;
+using PreGeodeButtonWithLabelCallback = std::function<void(GJGameLevel*)>;
 using PreInitialCallbackGeodeButtonWithLabel = std::function<void(GJGameLevel*)>;
 
-using MidGeodeButtonWithLabelCallback = std::function<void(GJBaseGameLayer*, std::string)>;
+using MidGeodeButtonWithLabelCallback = std::function<void(GJBaseGameLayer*)>;
 using MidInitialCallbackGeodeButtonWithLabel = std::function<void(GJBaseGameLayer*)>;
 
-using EditGeodeButtonWithLabelCallback = std::function<void(std::string)>;
+using EditGeodeButtonWithLabelCallback = std::function<void()>;
 using EditInitialCallbackGeodeButtonWithLabel = std::function<void()>;
 
 #define GEODEBUTTONWITHLABELEVENT(evname, onButtonPress, call) \

@@ -813,7 +813,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback, this]() {
+			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
 				callback(this->m_level);
 			});
 			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
@@ -1123,7 +1123,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback, this]() {
+			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
 				callback(this->m_baseGameLayer);
 			});
 			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
@@ -1465,7 +1465,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback]() {
+			primaryElement->setActivateCallback([callback = a.m_callback](geode::Button*) {
 				callback();
 			});
 			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
