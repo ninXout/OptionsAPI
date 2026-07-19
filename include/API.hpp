@@ -151,13 +151,13 @@ STRINGEVENT(Pre, PreStringCallback, PreInitialCallbackString)
 STRINGEVENT(Mid, MidStringCallback, MidInitialCallbackString)
 STRINGEVENT(Edit, EditStringCallback, EditInitialCallbackString)
 
-using PreLabeledButtonCallback = std::function<void(GJGameLevel*, std::string)>;
+using PreLabeledButtonCallback = std::function<void(GJGameLevel*)>;
 using PreInitialCallbackLabeledButton = std::function<void(GJGameLevel*)>;
 
-using MidLabeledButtonCallback = std::function<void(GJBaseGameLayer*, std::string)>;
+using MidLabeledButtonCallback = std::function<void(GJBaseGameLayer*)>;
 using MidInitialCallbackLabeledButton = std::function<void(GJBaseGameLayer*)>;
 
-using EditLabeledButtonCallback = std::function<void(std::string)>;
+using EditLabeledButtonCallback = std::function<void()>;
 using EditInitialCallbackLabeledButton = std::function<void()>;
 
 #define LABELEDBUTTONEVENT(evname, onButtonPress, call) \

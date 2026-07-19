@@ -188,7 +188,7 @@ std::map<std::string, EditorGeodeButtonWithLabelSetting> g_editGeodeButtonWithLa
 
 #define MOD_NAME_DEVS_OTHERS mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and others" : ""
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
-#define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what editing this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
+#define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what editing this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, geode::utils::string::replace(desc.data(), fmt::format("<cl>(From {})</c>\n", mod->getName()), "")) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
 
 $execute {
 	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
@@ -604,7 +604,7 @@ $on_game(Loaded) {
 			[](GJBaseGameLayer* gjbgl) {
 				Notification::create(fmt::format("gjbgl != nullptr: {}", gjbgl != nullptr), gjbgl != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
 			},
-			[](){},
+			[](GJBaseGameLayer* gjbgl) {},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
 		g_preLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = PreLabeledButtonSetting{
@@ -613,7 +613,7 @@ $on_game(Loaded) {
 			[](GJGameLevel* level) {
 				Notification::create(fmt::format("gjbgl != nullptr: {}", level != nullptr), level != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
 			},
-			[](){},
+			[](GJGameLevel* level) {},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
 		g_editLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = EditorLabeledButtonSetting{
@@ -667,11 +667,13 @@ $on_game(Loaded) {
 		return nullptr;\
 	}
 
-#define POSITION_AND_SETUP_CONTAINER(someKey, someValue)\
+#define MAKE_LABEL(someValue)\
 	CCLabelBMFont* label = CCLabelBMFont::create(someValue.m_name.c_str(), "bigFont.fnt");\
 	label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);\
-	container->addChild(inputBox);\
-	container->addChild(label);\
+	container->addChild(label);
+
+#define POSITION_AND_SETUP_CONTAINER(someKey, someValue)\
+	container->addChild(primaryElement);\
 	container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));\
 	this->m_buttonMenu->addChild(container);\
 	container->setID(fmt::format("{}"_spr, geode::utils::string::replace(someKey, "/", "-")));\
@@ -728,15 +730,16 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_level));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = inputBox, gjlvl = this->m_level, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Float);
+			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjlvl, clamped);
 			});
 
+			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
 
 			index++;
@@ -749,15 +752,16 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_level));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Int);
-			inputBox->setCallback([me = inputBox, gjlvl = this->m_level, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Int);
+			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjlvl, clamped);
 			});
 
+			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
@@ -770,13 +774,14 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_level));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Any);
-			inputBox->setCallback([gjlvl = this->m_level, callback = y.m_callback](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Any);
+			primaryElement->setCallback([gjlvl = this->m_level, callback = y.m_callback](const std::string& input) {
 				callback(gjlvl, input);
 			});
 
+			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
 
 			index++;
@@ -998,15 +1003,16 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_baseGameLayer));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = inputBox, gjbgl = this->m_baseGameLayer, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Float);
+			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjbgl, clamped);
 			});
 
+			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
 
 			index++;
@@ -1019,15 +1025,16 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_baseGameLayer));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Int);
-			inputBox->setCallback([me = inputBox, gjbgl = this->m_baseGameLayer, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Int);
+			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(gjbgl, clamped);
 			});
 
+			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
@@ -1040,13 +1047,14 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_baseGameLayer));
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Any);
-			inputBox->setCallback([gjbgl = this->m_baseGameLayer, callback = y.m_callback](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Any);
+			primaryElement->setCallback([gjbgl = this->m_baseGameLayer, callback = y.m_callback](const std::string& input) {
 				callback(gjbgl, input);
 			});
 
+			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
 
 			index++;
@@ -1137,7 +1145,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_editToggles.size() + EDIT_TOGGLES_START: {}", g_editToggles.size() + EDIT_TOGGLES_START);
 			std::string name, desc;
-			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size(), editStringsCount = g_editStrings.size();
+			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size(), editStringsCount = g_editStrings.size(), editLabeledButtonsCount = g_editLabeledButtons.size(), editGeodeButtonsWithLabelsCount = g_editGeodeButtonWithLabels.size();
 			if (senderTag < editTogglesCount + EDIT_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
 				const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
@@ -1158,6 +1166,16 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				const auto& information = std::next(g_editStrings.begin(), senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
+			} else if (senderTag < editLabeledButtonsCount + editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_editLabeledButtons.begin(), senderTag - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < editGeodeButtonsWithLabelsCount + editLabeledButtonsCount + editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - editLabeledButtonsCount - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
+				const auto& information = std::next(g_editGeodeButtonWithLabels.begin(), senderTag - editLabeledButtonsCount - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
 			}
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
@@ -1171,7 +1189,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
 			std::string name, desc;
-			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size(), midStringsCount = g_midStrings.size();
+			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size(), midStringsCount = g_midStrings.size(), midLabeledButtonsCount = g_midLabeledButtons.size(), midGeodeButtonsWithLabelsCount = g_midGeodeButtonWithLabels.size();
 			if (senderTag < midTogglesCount + MID_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
 				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
@@ -1192,6 +1210,16 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				const auto& information = std::next(g_midStrings.begin(), senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
+			} else if (senderTag < midLabeledButtonsCount + midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
+				const auto& information = std::next(g_midLabeledButtons.begin(), senderTag - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < midGeodeButtonsWithLabelsCount + midLabeledButtonsCount + midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - midLabeledButtonsCount - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
+				const auto& information = std::next(g_midGeodeButtonWithLabels.begin(), senderTag - midLabeledButtonsCount - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
 			}
 			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
 			info->m_noElasticity = true;
@@ -1205,7 +1233,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			// log::info("senderTag: {}", senderTag);
 			// log::info("g_preToggles.size() + PRE_TOGGLES_START: {}", g_preToggles.size() + PRE_TOGGLES_START);
 			std::string name, desc;
-			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size(), preStringsCount = g_preStrings.size();
+			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size(), preStringsCount = g_preStrings.size(), preLabeledButtonsCount = g_preLabeledButtons.size(), preGeodeButtonsWithLabelsCount = g_preGeodeButtonWithLabels.size();
 			if (senderTag < preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
@@ -1224,6 +1252,16 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 			} else if (senderTag < preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
 				// log::info("index should be 0: {}", senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
 				const auto& information = std::next(g_preStrings.begin(), senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < preLabeledButtonsCount + preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preLabeledButtons.begin(), senderTag - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
+				name = information.m_name;
+				desc = information.m_description;
+			} else if (senderTag < preGeodeButtonsWithLabelsCount + preLabeledButtonsCount + preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
+				// log::info("index should be 0: {}", senderTag - preLabeledButtonsCount - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
+				const auto& information = std::next(g_preGeodeButtonWithLabels.begin(), senderTag - preLabeledButtonsCount - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
 				name = information.m_name;
 				desc = information.m_description;
 			}
@@ -1270,15 +1308,16 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial());
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Float);
-			inputBox->setCallback([me = inputBox, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Float);
+			primaryElement->setCallback([me = primaryElement, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(clamped);
 			});
 
+			MAKE_LABEL(w)
 			POSITION_AND_SETUP_CONTAINER(l, w)
 
 			index++;
@@ -1291,20 +1330,20 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial());
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Int);
-			inputBox->setCallback([me = inputBox, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Int);
+			primaryElement->setCallback([me = primaryElement, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
 				callback(clamped);
 			});
 
+			MAKE_LABEL(x)
 			POSITION_AND_SETUP_CONTAINER(m, x)
 
 			index++;
 		}
-
 
 		for (const auto& [n, y] : g_editStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
@@ -1313,14 +1352,31 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 			container->setContentWidth(idealWidth);
 
 			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial());
-			geode::TextInput* inputBox = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			inputBox->setString(stupidPlaceholder, false);
-			inputBox->setCommonFilter(CommonFilter::Any);
-			inputBox->setCallback([callback = y.m_callback](const std::string& input) {
+			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
+			primaryElement->setString(stupidPlaceholder, false);
+			primaryElement->setCommonFilter(CommonFilter::Any);
+			primaryElement->setCallback([callback = y.m_callback](const std::string& input) {
 				callback(input);
 			});
 
+			MAKE_LABEL(y)
 			POSITION_AND_SETUP_CONTAINER(n, y)
+
+			index++;
+		}
+
+		for (const auto& [o, z] : g_editLabeledButtons) {
+			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
+			CCMenu* container = CCMenu::create();
+			container->setContentWidth(idealWidth);
+
+			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
+			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback](CCMenuItemSpriteExtra* btn) {
+				callback();
+			});
+
+			POSITION_AND_SETUP_CONTAINER(o, z)
 
 			index++;
 		}
