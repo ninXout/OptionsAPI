@@ -417,7 +417,7 @@ $execute {
 	editLabeledButtonListener.leak();
 
 	auto preGeodeButtonWithLabelListener = AddPreGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && button && button.data()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_preGeodeButtonWithLabels[fmt::format("{}/{}-pre-geode-button-with-label", modID, name)] = PreGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
@@ -426,12 +426,13 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	preGeodeButtonWithLabelListener.leak();
 
 	auto midGeodeButtonWithLabelListener = AddMidGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && button && button.data()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_midGeodeButtonWithLabels[fmt::format("{}/{}-mid-geode-button-with-label", modID, name)] = MidGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
@@ -440,12 +441,13 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	midGeodeButtonWithLabelListener.leak();
 
 	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
+		if (mod && !name.empty() && button && button.data()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
 			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditorGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
@@ -454,6 +456,7 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
+		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	editGeodeButtonWithLabelListener.leak();
@@ -554,7 +557,7 @@ $on_game(Loaded) {
 			-1000, 1000,
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_midStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = MidStringSetting{
+		g_midStrings[fmt::format("dummy-string-setting-string-{}"_spr, i)] = MidStringSetting{
 			fmt::format("dummy string setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](GJBaseGameLayer* gjbgl, std::string value) {
@@ -568,7 +571,7 @@ $on_game(Loaded) {
 			},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_preStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = PreStringSetting{
+		g_preStrings[fmt::format("dummy-string-setting-string-{}"_spr, i)] = PreStringSetting{
 			fmt::format("dummy string setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](GJGameLevel* gjlvl, std::string value) {
@@ -582,7 +585,7 @@ $on_game(Loaded) {
 			},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editStrings[fmt::format("dummy-string-setting-double-{}"_spr, i)] = EditorStringSetting{
+		g_editStrings[fmt::format("dummy-string-setting-string-{}"_spr, i)] = EditorStringSetting{
 			fmt::format("dummy string setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](std::string value) {
@@ -592,6 +595,34 @@ $on_game(Loaded) {
 			[]() {
 				return strDummy;
 			},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		// ask self: should lambda take ccmise as param?
+		g_midLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = MidLabeledButtonSetting{
+			fmt::format("dummy labeled button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJBaseGameLayer* gjbgl) {
+				Notification::create(fmt::format("gjbgl != nullptr: {}", gjbgl != nullptr), gjbgl != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
+			},
+			[](){},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_preLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = PreLabeledButtonSetting{
+			fmt::format("dummy labeled button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJGameLevel* level) {
+				Notification::create(fmt::format("gjbgl != nullptr: {}", level != nullptr), level != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
+			},
+			[](){},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_editLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = EditorLabeledButtonSetting{
+			fmt::format("dummy labeled button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[]() {
+				Notification::create("hello world", NotificationIcon::Success, .25f)->show();
+			},
+			[](){},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
 	}
