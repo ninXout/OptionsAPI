@@ -728,8 +728,8 @@ $on_game(Loaded) {
 	CCMenu* container = CCMenu::create();\
 	container->setContentWidth(idealWidth);
 
-#define SET_UP_TEXTINPUT_USING(someValue, commonFilter, somePointer)\
-	const std::string& stupidPlaceholder = geode::utils::numToString(someValue.m_initial(somePointer));\
+#define SET_UP_TEXTINPUT_USING(someValue, commonFilter, ...)\
+	const std::string& stupidPlaceholder = geode::utils::numToString(someValue.m_initial(__VA_OPT__(__VA_ARGS__)));\
 	geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);\
 	primaryElement->setString(stupidPlaceholder, false);\
 	primaryElement->setCommonFilter(CommonFilter::commonFilter);
