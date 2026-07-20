@@ -789,7 +789,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		}
 
 		for (const auto& [o, z] : g_preLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description);
 			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
@@ -803,11 +803,14 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
+			log::info("g_preLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_preLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
+
 			index++;
 		}
 
 		for (const auto& [p, a] : g_preGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description);
 			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
@@ -821,6 +824,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
+
+			log::info("g_preGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_preGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
@@ -1099,7 +1105,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		}
 
 		for (const auto& [o, z] : g_midLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
 			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
@@ -1113,11 +1119,14 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
+			log::info("g_midLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_midLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
+
 			index++;
 		}
 
 		for (const auto& [p, a] : g_midGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
 			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
 			CCMenu* container = CCMenu::create();
 			container->setContentWidth(idealWidth);
@@ -1131,6 +1140,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
+
+			log::info("g_midGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_midGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
@@ -1455,6 +1467,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
+			log::info("g_editLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_editLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
+
 			index++;
 		}
 
@@ -1473,6 +1488,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
+
+			log::info("g_editGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
+			log::info("g_editGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
