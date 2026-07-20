@@ -721,6 +721,13 @@ $on_game(Loaded) {
 	info->m_noElasticity = true;\
 	info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);\
 	info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);\
+	if (info->m_mainLayer && info->m_mainLayer->getChildByType<CCLabelBMFont>(-1) && static_cast<std::string>(info->m_mainLayer->getChildByType<CCLabelBMFont>(-1)->getString()) == name && static_cast<std::string>(info->m_mainLayer->getChildByType<CCLabelBMFont>(-1)->getFntFile()) == "goldFont.fnt") {\
+		CCLabelBMFont* thatDamnLabel = info->m_mainLayer->getChildByType<CCLabelBMFont>(-1);\
+		const float originalScale = thatDamnLabel->getScale();\
+		thatDamnLabel->setAnchorPoint({.5f, .5f});\
+		thatDamnLabel->setPositionY(thatDamnLabel->getPositionY() - (thatDamnLabel->getContentHeight() / 2.f));\
+		thatDamnLabel->limitLabelWidth(400.f * .9f, originalScale, .0001f);\
+	}\
 	info->show();
 
 #define DUMMY_CHECKBOX_SANITY_CHECK\
