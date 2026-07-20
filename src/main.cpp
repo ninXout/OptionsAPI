@@ -799,6 +799,82 @@ $on_game(Loaded) {
 		index++;\
 	}
 
+#define GRAB_ALL_OTHER_TYPES(type, modifyClass, fuckingStupidOffset, somePointer)\
+	for (const auto& [n, y] : g_##type##Strings) {\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, y.m_description, fuckingStupidOffset);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		SET_UP_TEXTINPUT_USING(y, Any, somePointer)\
+		primaryElement->setCallback([ptr = somePointer, callback = y.m_callback](const std::string& input) {\
+			callback(ptr, input);\
+		});\
+		POSITION_AND_SETUP_CONTAINER(n, y)\
+		MAKE_LABEL(y)\
+		index++;\
+	}\
+	for (const auto& [o, z] : g_##type##LabeledButtons) {\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, z.m_description, fuckingStupidOffset);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");\
+		CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {\
+			callback(somePointer);\
+		});\
+		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));\
+		z.m_initial(somePointer);\
+		POSITION_AND_SETUP_CONTAINER(o, z)\
+		index++;\
+	}\
+	for (const auto& [p, a] : g_##type##GeodeButtonWithLabels) {\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, a.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		geode::Button* primaryElement = a.m_button.data();\
+		primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {\
+			callback(somePointer);\
+		});\
+		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));\
+		a.m_initial(somePointer);\
+		POSITION_AND_SETUP_CONTAINER(p, a)\
+		MAKE_LABEL(a)\
+		index++;\
+	}
+
+#define GRAB_ALL_OTHER_TYPES_FOR_EDITOR\
+	for (const auto& [n, y] : g_editStrings) {\
+		CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		SET_UP_TEXTINPUT_USING(y, Any)\
+		primaryElement->setCallback([callback = y.m_callback](const std::string& input) {\
+			callback(input);\
+		});\
+		POSITION_AND_SETUP_CONTAINER(n, y)\
+		MAKE_LABEL(y)\
+		index++;\
+	}\
+	for (const auto& [o, z] : g_editLabeledButtons) {\
+		CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");\
+		CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback](CCMenuItemSpriteExtra* btn) {\
+			callback();\
+		});\
+		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));\
+		z.m_initial();\
+		POSITION_AND_SETUP_CONTAINER(o, z)\
+		index++;\
+	}\
+	for (const auto& [p, a] : g_editGeodeButtonWithLabels) {\
+		CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		geode::Button* primaryElement = a.m_button.data();\
+		primaryElement->setActivateCallback([callback = a.m_callback](geode::Button*) {\
+			callback();\
+		});\
+		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));\
+		a.m_initial();\
+		POSITION_AND_SETUP_CONTAINER(p, a)\
+		MAKE_LABEL(a)\
+		index++;\
+	}
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -842,53 +918,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		GRAB(l, w, pre, Double, OAPIGameLevelOptionsLayer, 0, Float, double, 2., this->m_level)
 		GRAB(m, x, pre, Long, OAPIGameLevelOptionsLayer, 0, Int, long, 2, this->m_level)
 
-		for (const auto& [n, y] : g_preStrings) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(y, Any, this->m_level)
-			primaryElement->setCallback([gjlvl = this->m_level, callback = y.m_callback](const std::string& input) {
-				callback(gjlvl, input);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(n, y)
-			MAKE_LABEL(y)
-
-			index++;
-		}
-
-		for (const auto& [o, z] : g_preLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
-			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
-				callback(this->m_level);
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
-			z.m_initial(this->m_level);
-
-			POSITION_AND_SETUP_CONTAINER(o, z)
-
-			index++;
-		}
-
-		for (const auto& [p, a] : g_preGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
-				callback(this->m_level);
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
-			a.m_initial(this->m_level);
-
-			POSITION_AND_SETUP_CONTAINER(p, a)
-			MAKE_LABEL(a)
-
-			index++;
-		}
+		GRAB_ALL_OTHER_TYPES(pre, OAPIGameLevelOptionsLayer, 0, this->m_level)
 	}
 
 	void didToggle(int opt) {
@@ -1102,53 +1132,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		GRAB(l, w, mid, Double, OAPIGameOptionsLayer, this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0, Float, double, 2., this->m_baseGameLayer)
 		GRAB(m, x, mid, Long, OAPIGameOptionsLayer, this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0, Int, long, 2, this->m_baseGameLayer)
 
-		for (const auto& [n, y] : g_midStrings) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(y, Any, this->m_baseGameLayer)
-			primaryElement->setCallback([gjbgl = this->m_baseGameLayer, callback = y.m_callback](const std::string& input) {
-				callback(gjbgl, input);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(n, y)
-			MAKE_LABEL(y)
-
-			index++;
-		}
-
-		for (const auto& [o, z] : g_midLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
-			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
-				callback(this->m_baseGameLayer);
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
-			z.m_initial(this->m_baseGameLayer);
-
-			POSITION_AND_SETUP_CONTAINER(o, z)
-
-			index++;
-		}
-
-		for (const auto& [p, a] : g_midGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
-				callback(this->m_baseGameLayer);
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
-			a.m_initial(this->m_baseGameLayer);
-
-			POSITION_AND_SETUP_CONTAINER(p, a)
-			MAKE_LABEL(a)
-
-			index++;
-		}
+		GRAB_ALL_OTHER_TYPES(mid, OAPIGameOptionsLayer, this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0, this->m_baseGameLayer)
 	}
 
 	void didToggle(int opt) {
@@ -1272,53 +1256,7 @@ class $modify(OAPIEditorOptionsLayer, EditorOptionsLayer) {
 		GRAB_FOR_EDITOR(l, w, edit, Double, OAPIEditorOptionsLayer, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START, Float, double, 2.)
 		GRAB_FOR_EDITOR(m, x, edit, Long, OAPIEditorOptionsLayer, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START, Int, long, 2)
 
-		for (const auto& [n, y] : g_editStrings) {
-			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(y, Any)
-			primaryElement->setCallback([callback = y.m_callback](const std::string& input) {
-				callback(input);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(n, y)
-			MAKE_LABEL(y)
-
-			index++;
-		}
-
-		for (const auto& [o, z] : g_editLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
-			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback](CCMenuItemSpriteExtra* btn) {
-				callback();
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));
-			z.m_initial();
-
-			POSITION_AND_SETUP_CONTAINER(o, z)
-
-			index++;
-		}
-
-		for (const auto& [p, a] : g_editGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			geode::Button* primaryElement = a.m_button.data();
-			primaryElement->setActivateCallback([callback = a.m_callback](geode::Button*) {
-				callback();
-			});
-			primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));
-			a.m_initial();
-
-			POSITION_AND_SETUP_CONTAINER(p, a)
-			MAKE_LABEL(a)
-
-			index++;
-		}
+		GRAB_ALL_OTHER_TYPES_FOR_EDITOR
 	}
 
 	void didToggle(int opt) {
