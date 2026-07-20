@@ -597,7 +597,6 @@ $on_game(Loaded) {
 			},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		// ask self: should lambda take ccmise as param?
 		g_midLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = MidLabeledButtonSetting{
 			fmt::format("dummy labeled button setting #{}", i),
 			FORMATTED_MOD_INFO,
@@ -611,7 +610,7 @@ $on_game(Loaded) {
 			fmt::format("dummy labeled button setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](GJGameLevel* level) {
-				Notification::create(fmt::format("gjbgl != nullptr: {}", level != nullptr), level != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
+				Notification::create(fmt::format("level != nullptr: {}", level != nullptr), level != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
 			},
 			[](GJGameLevel* level) {},
 			fmt::format("#{}\n{}", i, trueDesc)
@@ -623,6 +622,39 @@ $on_game(Loaded) {
 				Notification::create("hello world", NotificationIcon::Success, .25f)->show();
 			},
 			[](){},
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_midGeodeButtonWithLabels[fmt::format("dummy-labeled-geode-button-{}"_spr, i)] = MidGeodeButtonWithLabelSetting{
+			fmt::format("dummy labeled geode button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJBaseGameLayer* gjbgl) {
+				Notification::create(fmt::format("gjbgl != nullptr: {}", gjbgl != nullptr), gjbgl != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
+			},
+			[](GJBaseGameLayer* gjbgl) {
+				log::info("g_midGeodeButtonWithLabels hello i am a gode button added in yay!!");
+			}, geode::Ref(geode::Button::createWithLabel(fmt::format("gjbgl #{}", i), "chatFont.fnt")),
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_preGeodeButtonWithLabels[fmt::format("dummy-labeled-geode-button-{}"_spr, i)] = PreGeodeButtonWithLabelSetting{
+			fmt::format("dummy labeled geode button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[](GJGameLevel* level) {
+				Notification::create(fmt::format("level != nullptr: {}", level != nullptr), level != nullptr ? NotificationIcon::Success : NotificationIcon::Error, .25f)->show();
+			},
+			[](GJGameLevel* level) {
+				log::info("g_preGeodeButtonWithLabels hello i am a gode button added in yay!!");
+			}, geode::Ref(geode::Button::createWithSprite("dialogIcon_056.png")),
+			fmt::format("#{}\n{}", i, trueDesc)
+		};
+		g_editGeodeButtonWithLabels[fmt::format("dummy-labeled-geode-button-{}"_spr, i)] = EditorGeodeButtonWithLabelSetting{
+			fmt::format("dummy labeled geode button setting #{}", i),
+			FORMATTED_MOD_INFO,
+			[]() {
+				Notification::create("hello world", NotificationIcon::Success, .25f)->show();
+			},
+			[](){
+				log::info("g_editGeodeButtonWithLabels hello i am a gode button added in yay!!");
+			}, geode::Ref(geode::Button::createWithSpriteFrameName("GJ_rewardBtn_001.png")),
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
 	}
@@ -684,6 +716,24 @@ $on_game(Loaded) {
 	container->setUserObject("page-number"_spr, CCInteger::create(static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue()));\
 	container->setUserFlag("not-a-toggle"_spr, true);
 
+#define SHOW_OPTIONS_API_INFORMATION\
+	FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);\
+	info->m_noElasticity = true;\
+	info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);\
+	info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);\
+	info->show();
+
+#define DUMMY_CHECKBOX_SANITY_CHECK\
+	if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;\
+	CCMenu* container = CCMenu::create();\
+	container->setContentWidth(idealWidth);
+
+#define SET_UP_TEXTINPUT_USING(someValue, commonFilter, somePointer)\
+	const std::string& stupidPlaceholder = geode::utils::numToString(someValue.m_initial(somePointer));\
+	geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);\
+	primaryElement->setString(stupidPlaceholder, false);\
+	primaryElement->setCommonFilter(CommonFilter::commonFilter);
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -726,14 +776,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_preDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_level));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Float);
+			SET_UP_TEXTINPUT_USING(w, Float, this->m_level)
 			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -748,14 +793,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 		for (const auto& [m, x] : g_preLongs) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_level));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Int);
+			SET_UP_TEXTINPUT_USING(x, Int, this->m_level)
 			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -770,14 +810,9 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 		for (const auto& [n, y] : g_preStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_level));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Any);
+			SET_UP_TEXTINPUT_USING(y, Any, this->m_level)
 			primaryElement->setCallback([gjlvl = this->m_level, callback = y.m_callback](const std::string& input) {
 				callback(gjlvl, input);
 			});
@@ -790,9 +825,7 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 		for (const auto& [o, z] : g_preLabeledButtons) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
 			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
@@ -803,17 +836,12 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
-			log::info("g_preLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_preLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
-
 			index++;
 		}
 
 		for (const auto& [p, a] : g_preGeodeButtonWithLabels) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			geode::Button* primaryElement = a.m_button.data();
 			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
@@ -824,9 +852,6 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
-
-			log::info("g_preGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_preGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
@@ -1042,14 +1067,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_midDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial(this->m_baseGameLayer));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Float);
+			SET_UP_TEXTINPUT_USING(w, Float, this->m_baseGameLayer)
 			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -1064,14 +1084,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 		for (const auto& [m, x] : g_midLongs) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial(this->m_baseGameLayer));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Int);
+			SET_UP_TEXTINPUT_USING(x, Int, this->m_baseGameLayer)
 			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -1086,14 +1101,9 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 		for (const auto& [n, y] : g_midStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial(this->m_baseGameLayer));
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Any);
+			SET_UP_TEXTINPUT_USING(y, Any, this->m_baseGameLayer)
 			primaryElement->setCallback([gjbgl = this->m_baseGameLayer, callback = y.m_callback](const std::string& input) {
 				callback(gjbgl, input);
 			});
@@ -1106,9 +1116,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 		for (const auto& [o, z] : g_midLabeledButtons) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
 			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback, this](CCMenuItemSpriteExtra* btn) {
@@ -1119,17 +1127,12 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
-			log::info("g_midLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_midLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
-
 			index++;
 		}
 
 		for (const auto& [p, a] : g_midGeodeButtonWithLabels) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			geode::Button* primaryElement = a.m_button.data();
 			primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {
@@ -1140,9 +1143,6 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
-
-			log::info("g_midGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_midGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
@@ -1264,11 +1264,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				name = information.m_name;
 				desc = information.m_description;
 			}
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
-			info->m_noElasticity = true;
-			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
-			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
-			info->show();
+			SHOW_OPTIONS_API_INFORMATION
 			return;
 		}
 		if (this->getUserFlag("use-midtoggles"_spr)) {
@@ -1308,11 +1304,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				name = information.m_name;
 				desc = information.m_description;
 			}
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
-			info->m_noElasticity = true;
-			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
-			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
-			info->show();
+			SHOW_OPTIONS_API_INFORMATION
 			return;
 		}
 		if (this->getUserFlag("use-pretoggles"_spr)) {
@@ -1352,11 +1344,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 				name = information.m_name;
 				desc = information.m_description;
 			}
-			FLAlertLayer* info = FLAlertLayer::create(nullptr, name.c_str(), geode::utils::string::replace(desc, "<c-ff0000>", "<c_>"), "OK", nullptr, 400.f, false, 0, 1.f);
-			info->m_noElasticity = true;
-			info->setUserFlag("undefined0.draggable-popups/undraggable-popup", true);
-			info->setUserFlag("chs000.customizepopupanimation/dont-animate", true);
-			info->show();
+			SHOW_OPTIONS_API_INFORMATION
 			return;
 		}
 	}
@@ -1390,14 +1378,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		constexpr float idealWidth = 165.f;
 		for (const auto& [l, w] : g_editDoubles) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(w.m_initial());
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Float);
+			SET_UP_TEXTINPUT_USING(w, Float)
 			primaryElement->setCallback([me = primaryElement, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
 				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -1412,14 +1395,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 		for (const auto& [m, x] : g_editLongs) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(x.m_initial());
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Int);
+			SET_UP_TEXTINPUT_USING(x, Int)
 			primaryElement->setCallback([me = primaryElement, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
 				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
 				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
@@ -1434,14 +1412,9 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 		for (const auto& [n, y] : g_editStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
-			const std::string& stupidPlaceholder = geode::utils::numToString(y.m_initial());
-			geode::TextInput* primaryElement = geode::TextInput::create(idealWidth * 1.5f, stupidPlaceholder);
-			primaryElement->setString(stupidPlaceholder, false);
-			primaryElement->setCommonFilter(CommonFilter::Any);
+			SET_UP_TEXTINPUT_USING(y, Any)
 			primaryElement->setCallback([callback = y.m_callback](const std::string& input) {
 				callback(input);
 			});
@@ -1454,9 +1427,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 		for (const auto& [o, z] : g_editLabeledButtons) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
 			CCMenuItemSpriteExtra* primaryElement = geode::cocos::CCMenuItemExt::createSpriteExtra(btnSprite, [callback = z.m_callback](CCMenuItemSpriteExtra* btn) {
@@ -1467,17 +1438,12 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(o, z)
 
-			log::info("g_editLabeledButtons: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_editLabeledButtons: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
-
 			index++;
 		}
 
 		for (const auto& [p, a] : g_editGeodeButtonWithLabels) {
 			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			if (!dummyCheckbox || !dummyCheckbox->getUserObject("page-number"_spr) || !typeinfo_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))) continue;
-			CCMenu* container = CCMenu::create();
-			container->setContentWidth(idealWidth);
+			DUMMY_CHECKBOX_SANITY_CHECK
 
 			geode::Button* primaryElement = a.m_button.data();
 			primaryElement->setActivateCallback([callback = a.m_callback](geode::Button*) {
@@ -1488,9 +1454,6 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 
 			POSITION_AND_SETUP_CONTAINER(p, a)
 			MAKE_LABEL(a)
-
-			log::info("g_editGeodeButtonWithLabels: dummyCheckbox->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(dummyCheckbox->getUserObject("page-number"_spr))->getValue());
-			log::info("g_editGeodeButtonWithLabels: container->getUserObject(\"page-number\"_spr): {}", static_cast<CCInteger*>(container->getUserObject("page-number"_spr))->getValue());
 
 			index++;
 		}
