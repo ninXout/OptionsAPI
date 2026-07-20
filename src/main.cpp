@@ -824,7 +824,7 @@ $on_game(Loaded) {
 		index++;\
 	}\
 	for (const auto& [p, a] : g_##type##GeodeButtonWithLabels) {\
-		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, a.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, a.m_description, fuckingStupidOffset);\
 		DUMMY_CHECKBOX_SANITY_CHECK\
 		geode::Button* primaryElement = a.m_button.data();\
 		primaryElement->setActivateCallback([callback = a.m_callback, this](geode::Button*) {\
