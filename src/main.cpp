@@ -769,6 +769,36 @@ $on_game(Loaded) {
 	}\
 	SHOW_OPTIONS_API_INFORMATION
 
+#define GRAB(k, v, type, optionAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong, somePointer)\
+	for (const auto& [k, v] : g_##type##optionAPIType##s) {\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, v.m_description, arbitraryOffset);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		SET_UP_TEXTINPUT_USING(v, filterType, somePointer)\
+		primaryElement->setCallback([me = primaryElement, someCapturedPointer = somePointer, callback = v.m_callback, min = v.m_min, max = v.m_max](const std::string& input) {\
+			const numFromStringType clamped = std::clamp<numFromStringType>(geode::utils::numFromString<numFromStringType>(input).unwrapOr((min + max) / twoAsDoubleOrTwoAsLong), min, max);\
+			if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);\
+			callback(someCapturedPointer, clamped);\
+		});\
+		POSITION_AND_SETUP_CONTAINER(k, v)\
+		MAKE_LABEL(v)\
+		index++;\
+	}
+
+#define GRAB_FOR_EDITOR(k, v, type, optionAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong)\
+	for (const auto& [k, v] : g_##type##optionAPIType##s) {\
+		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, v.m_description, arbitraryOffset);\
+		DUMMY_CHECKBOX_SANITY_CHECK\
+		SET_UP_TEXTINPUT_USING(v, filterType)\
+		primaryElement->setCallback([me = primaryElement, callback = v.m_callback, min = v.m_min, max = v.m_max](const std::string& input) {\
+			const double clamped = std::clamp<numFromStringType>(geode::utils::numFromString<numFromStringType>(input).unwrapOr((min + max) / twoAsDoubleOrTwoAsLong), min, max);\
+			if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);\
+			callback(clamped);\
+		});\
+		POSITION_AND_SETUP_CONTAINER(k, v)\
+		MAKE_LABEL(v)\
+		index++;\
+	}
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -804,44 +834,13 @@ class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 		int index = PRE_TOGGLES_START;
 
 		for (const auto& [k, v] : g_preToggles) {
-			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), fmt::format("{}", v.m_description).c_str());
+			addToggle(v.m_name.c_str(), index, v.m_initial(m_level), v.m_description.c_str());
 			index++;
 		}
 
 		constexpr float idealWidth = 165.f;
-		for (const auto& [l, w] : g_preDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(w, Float, this->m_level)
-			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
-				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(gjlvl, clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(l, w)
-			MAKE_LABEL(w)
-
-			index++;
-		}
-
-		for (const auto& [m, x] : g_preLongs) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(x, Int, this->m_level)
-			primaryElement->setCallback([me = primaryElement, gjlvl = this->m_level, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
-				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2.), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(gjlvl, clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(m, x)
-			MAKE_LABEL(x)
-
-			index++;
-		}
+		GRAB(l, w, pre, Double, OAPIGameLevelOptionsLayer, 0, Float, double, 2., this->m_level)
+		GRAB(m, x, pre, Long, OAPIGameLevelOptionsLayer, 0, Int, long, 2, this->m_level)
 
 		for (const auto& [n, y] : g_preStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameLevelOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description);
@@ -1095,44 +1094,13 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		int index = MID_TOGGLES_START;
 
 		for (const auto& [k, v] : g_midToggles) {
-			addToggle(v.m_name.c_str(), index, v.m_initial(m_baseGameLayer), fmt::format("{}", v.m_description).c_str());
+			addToggle(v.m_name.c_str(), index, v.m_initial(m_baseGameLayer), v.m_description.c_str());
 			index++;
 		}
 
 		constexpr float idealWidth = 165.f;
-		for (const auto& [l, w] : g_midDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(w, Float, this->m_baseGameLayer)
-			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
-				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(gjbgl, clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(l, w)
-			MAKE_LABEL(w)
-
-			index++;
-		}
-
-		for (const auto& [m, x] : g_midLongs) {
-			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(x, Int, this->m_baseGameLayer)
-			primaryElement->setCallback([me = primaryElement, gjbgl = this->m_baseGameLayer, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
-				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(gjbgl, clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(m, x)
-			MAKE_LABEL(x)
-
-			index++;
-		}
+		GRAB(l, w, mid, Double, OAPIGameOptionsLayer, this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0, Float, double, 2., this->m_baseGameLayer)
+		GRAB(m, x, mid, Long, OAPIGameOptionsLayer, this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0, Int, long, 2, this->m_baseGameLayer)
 
 		for (const auto& [n, y] : g_midStrings) {
 			CCMenuItemToggler* dummyCheckbox = OAPIGameOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, this->m_baseGameLayer->m_level && this->m_baseGameLayer->m_level->m_levelType == GJLevelType::Editor ? 1 : 0);
@@ -1276,7 +1244,7 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 };
 
 #include <Geode/modify/EditorOptionsLayer.hpp>
-class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
+class $modify(OAPIEditorOptionsLayer, EditorOptionsLayer) {
 	static void onModify(auto& self) {
 		if (!self.setHookPriority("EditorOptionsLayer::setupOptions", 4000)) {
 			geode::log::warn("Failed to set hook priority for EditorOptionsLayer::setupOptions");
@@ -1296,47 +1264,16 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		int index = EDIT_TOGGLES_START; // bump this by 1 because rob added "Static Trace Arrows", "0181" --raydeeux
 
 		for (const auto& [k, v] : g_editToggles) {
-			addToggle(v.m_name.c_str(), index, v.m_initial(), fmt::format("{}", v.m_description).c_str());
+			addToggle(v.m_name.c_str(), index, v.m_initial(), v.m_description.c_str());
 			index++;
 		}
 
 		constexpr float idealWidth = 165.f;
-		for (const auto& [l, w] : g_editDoubles) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, w.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(w, Float)
-			primaryElement->setCallback([me = primaryElement, callback = w.m_callback, min = w.m_min, max = w.m_max](const std::string& input) {
-				const double clamped = std::clamp<double>(geode::utils::numFromString<double>(input).unwrapOr((min + max) / 2.), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(l, w)
-			MAKE_LABEL(w)
-
-			index++;
-		}
-
-		for (const auto& [m, x] : g_editLongs) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, x.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
-			DUMMY_CHECKBOX_SANITY_CHECK
-
-			SET_UP_TEXTINPUT_USING(x, Int)
-			primaryElement->setCallback([me = primaryElement, callback = x.m_callback, min = x.m_min, max = x.m_max](const std::string& input) {
-				const long clamped = std::clamp<long>(geode::utils::numFromString<long>(input).unwrapOr((min + max) / 2), min, max);
-				if (clamped == min || clamped == max) me->setString(geode::utils::numToString(clamped), false);
-				callback(clamped);
-			});
-
-			POSITION_AND_SETUP_CONTAINER(m, x)
-			MAKE_LABEL(x)
-
-			index++;
-		}
+		GRAB_FOR_EDITOR(l, w, edit, Double, OAPIEditorOptionsLayer, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START, Float, double, 2.)
+		GRAB_FOR_EDITOR(m, x, edit, Long, OAPIEditorOptionsLayer, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START, Int, long, 2)
 
 		for (const auto& [n, y] : g_editStrings) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, y.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
 			DUMMY_CHECKBOX_SANITY_CHECK
 
 			SET_UP_TEXTINPUT_USING(y, Any)
@@ -1351,7 +1288,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		}
 
 		for (const auto& [o, z] : g_editLabeledButtons) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, z.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
 			DUMMY_CHECKBOX_SANITY_CHECK
 
 			ButtonSprite* btnSprite = ButtonSprite::create(z.m_name.c_str(), "bigFont.fnt", "GJ_button_01.png");
@@ -1367,7 +1304,7 @@ class $modify(OAIPEditorOptionsLayer, EditorOptionsLayer) {
 		}
 
 		for (const auto& [p, a] : g_editGeodeButtonWithLabels) {
-			CCMenuItemToggler* dummyCheckbox = OAIPEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
+			CCMenuItemToggler* dummyCheckbox = OAPIEditorOptionsLayer::addDummyCheckboxWithDescription(index, a.m_description, ACTUAL_EDITOR_TOGGLER_COUNT - EDIT_TOGGLES_START);
 			DUMMY_CHECKBOX_SANITY_CHECK
 
 			geode::Button* primaryElement = a.m_button.data();
