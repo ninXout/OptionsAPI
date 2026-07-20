@@ -741,6 +741,34 @@ $on_game(Loaded) {
 	primaryElement->setString(stupidPlaceholder, false);\
 	primaryElement->setCommonFilter(CommonFilter::commonFilter);
 
+#define NAME_AND_DESC\
+	name = information.m_name;\
+	desc = information.m_description;
+
+#define FETCH_NAME_AND_INFO(type, typeButCapsLock)\
+	std::string name, desc;\
+	const size_t type##TogglesCount = g_##type##Toggles.size(), type##DoublesCount = g_##type##Doubles.size(), type##LongsCount = g_##type##Longs.size(), type##StringsCount = g_##type##Strings.size(), type##LabeledButtonsCount = g_##type##LabeledButtons.size(), type##GeodeButtonsWithLabelsCount = g_##type##GeodeButtonWithLabels.size();\
+	if (senderTag < type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_##type##Toggles.begin(), senderTag - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	} else if (senderTag < type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_##type##Doubles.begin(), senderTag - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	} else if (senderTag < type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_editLongs.begin(), senderTag - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	} else if (senderTag < type##StringsCount + type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_##type##Strings.begin(), senderTag - type##LongsCount - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	} else if (senderTag < type##LabeledButtonsCount + type##StringsCount + type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_##type##LabeledButtons.begin(), senderTag - type##StringsCount - type##LongsCount - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	} else if (senderTag < type##GeodeButtonsWithLabelsCount + type##LabeledButtonsCount + type##StringsCount + type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
+		const auto& information = std::next(g_##type##GeodeButtonWithLabels.begin(), senderTag - type##LabeledButtonsCount - type##StringsCount - type##LongsCount - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		NAME_AND_DESC\
+	}\
+	SHOW_OPTIONS_API_INFORMATION
+
 #include <Geode/modify/GameLevelOptionsLayer.hpp>
 class $modify(OAPIGameLevelOptionsLayer, GameLevelOptionsLayer) {
 	static void onModify(auto& self) {
@@ -1236,123 +1264,13 @@ class $modify(OAPIGJOptionsLayer, GJOptionsLayer) {
 		const int senderTag = sender->getTag();
 		if (this->getUserFlag("use-edittoggles"_spr)) {
 			if (senderTag < EDIT_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			// log::info("senderTag: {}", senderTag);
-			// log::info("g_editToggles.size() + EDIT_TOGGLES_START: {}", g_editToggles.size() + EDIT_TOGGLES_START);
-			std::string name, desc;
-			const size_t editTogglesCount = g_editToggles.size(), editDoublesCount = g_editDoubles.size(), editLongsCount = g_editLongs.size(), editStringsCount = g_editStrings.size(), editLabeledButtonsCount = g_editLabeledButtons.size(), editGeodeButtonsWithLabelsCount = g_editGeodeButtonWithLabels.size();
-			if (senderTag < editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editToggles.begin(), senderTag - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editDoubles.begin(), senderTag - editTogglesCount - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editLongs.begin(), senderTag - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editStrings.begin(), senderTag - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < editLabeledButtonsCount + editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editLabeledButtons.begin(), senderTag - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < editGeodeButtonsWithLabelsCount + editLabeledButtonsCount + editStringsCount + editLongsCount + editDoublesCount + editTogglesCount + EDIT_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - editLabeledButtonsCount - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START);
-				const auto& information = std::next(g_editGeodeButtonWithLabels.begin(), senderTag - editLabeledButtonsCount - editStringsCount - editLongsCount - editDoublesCount - editTogglesCount - EDIT_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			}
-			SHOW_OPTIONS_API_INFORMATION
-			return;
-		}
-		if (this->getUserFlag("use-midtoggles"_spr)) {
+			FETCH_NAME_AND_INFO(edit, EDIT)
+		} else if (this->getUserFlag("use-midtoggles"_spr)) {
 			if (senderTag < MID_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			// log::info("senderTag: {}", senderTag);
-			// log::info("g_midToggles.size() + MID_TOGGLES_START: {}", g_midToggles.size() + MID_TOGGLES_START);
-			std::string name, desc;
-			const size_t midTogglesCount = g_midToggles.size(), midDoublesCount = g_midDoubles.size(), midLongsCount = g_midLongs.size(), midStringsCount = g_midStrings.size(), midLabeledButtonsCount = g_midLabeledButtons.size(), midGeodeButtonsWithLabelsCount = g_midGeodeButtonWithLabels.size();
-			if (senderTag < midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - MID_TOGGLES_START);
-				const auto& information = std::next(g_midToggles.begin(), senderTag - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midDoubles.begin(), senderTag - midTogglesCount - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midLongs.begin(), senderTag - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midStrings.begin(), senderTag - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < midLabeledButtonsCount + midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midLabeledButtons.begin(), senderTag - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < midGeodeButtonsWithLabelsCount + midLabeledButtonsCount + midStringsCount + midLongsCount + midDoublesCount + midTogglesCount + MID_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - midLabeledButtonsCount - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START);
-				const auto& information = std::next(g_midGeodeButtonWithLabels.begin(), senderTag - midLabeledButtonsCount - midStringsCount - midLongsCount - midDoublesCount - midTogglesCount - MID_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			}
-			SHOW_OPTIONS_API_INFORMATION
-			return;
-		}
-		if (this->getUserFlag("use-pretoggles"_spr)) {
+			FETCH_NAME_AND_INFO(mid, MID)
+		} else if (this->getUserFlag("use-pretoggles"_spr)) {
 			if (senderTag < PRE_TOGGLES_START) return GJOptionsLayer::onInfo(sender);
-			// log::info("senderTag: {}", senderTag);
-			// log::info("g_preToggles.size() + PRE_TOGGLES_START: {}", g_preToggles.size() + PRE_TOGGLES_START);
-			std::string name, desc;
-			const size_t preTogglesCount = g_preToggles.size(), preDoublesCount = g_preDoubles.size(), preLongsCount = g_preLongs.size(), preStringsCount = g_preStrings.size(), preLabeledButtonsCount = g_preLabeledButtons.size(), preGeodeButtonsWithLabelsCount = g_preGeodeButtonWithLabels.size();
-			if (senderTag < preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preToggles.begin(), senderTag - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preDoubles.begin(), senderTag - preTogglesCount - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preLongs.begin(), senderTag - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preStrings.begin(), senderTag - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < preLabeledButtonsCount + preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preLabeledButtons.begin(), senderTag - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			} else if (senderTag < preGeodeButtonsWithLabelsCount + preLabeledButtonsCount + preStringsCount + preLongsCount + preDoublesCount + preTogglesCount + PRE_TOGGLES_START) {
-				// log::info("index should be 0: {}", senderTag - preLabeledButtonsCount - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START);
-				const auto& information = std::next(g_preGeodeButtonWithLabels.begin(), senderTag - preLabeledButtonsCount - preStringsCount - preLongsCount - preDoublesCount - preTogglesCount - PRE_TOGGLES_START)->second;
-				name = information.m_name;
-				desc = information.m_description;
-			}
-			SHOW_OPTIONS_API_INFORMATION
-			return;
+			FETCH_NAME_AND_INFO(pre, PRE)
 		}
 	}
 };
