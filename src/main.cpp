@@ -681,22 +681,22 @@ $on_game(Loaded) {
 		const int stupidSum = tag + offsetBecauseOfStupidNoclipToggleOrOtherStupidReason + (this->getUserFlag("use-edittoggles"_spr) ? 1 : 0);\
 		int page = (stupidSum / this->m_togglesPerPage);\
 		if ((stupidSum % this->m_togglesPerPage) != 0) page++;\
-		if (CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag))) {\
-			placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
-			placeholder->setScale(0);\
-			placeholder->setEnabled(false);\
-			placeholder->m_pListener = nullptr;\
-			placeholder->m_notClickable = true;\
-			placeholder->m_pfnSelector = nullptr;\
-			placeholder->m_onButton->removeMeAndCleanup();\
-			placeholder->m_onButton = nullptr;\
-			placeholder->m_offButton->removeMeAndCleanup();\
-			placeholder->m_offButton = nullptr;\
-			placeholder->removeAllChildrenWithCleanup(true);\
-			placeholder->setUserObject("page-number"_spr, CCInteger::create(page));\
-			return placeholder;\
-		}\
-		return nullptr;\
+		CCMenuItemToggler* placeholder = GJOptionsLayer::getToggleButton(tag);\
+		if (!placeholder) placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag));\
+		if (!placeholder) return nullptr;\
+		placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
+		placeholder->setScale(0);\
+		placeholder->setEnabled(false);\
+		placeholder->m_pListener = nullptr;\
+		placeholder->m_notClickable = true;\
+		placeholder->m_pfnSelector = nullptr;\
+		placeholder->m_onButton->removeMeAndCleanup();\
+		placeholder->m_onButton = nullptr;\
+		placeholder->m_offButton->removeMeAndCleanup();\
+		placeholder->m_offButton = nullptr;\
+		placeholder->removeAllChildrenWithCleanup(true);\
+		placeholder->setUserObject("page-number"_spr, CCInteger::create(page));\
+		return placeholder;\
 	}
 
 #define MAKE_LABEL(someValue)\
