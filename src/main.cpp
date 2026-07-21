@@ -722,7 +722,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			m_fields->fuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(placeholderToggleTag));
 			if (m_fields->fuckingStupidPlaceholderToggle) {
 				m_fields->fuckingStupidPlaceholderToggle->setID("if-you-activate-this-other-placeholder-the-game-will-crash"_spr);
-				DISABLE_TOGGLER(m_fields->yetAnotherFuckingStupidPlaceholderToggle)
+				DISABLE_TOGGLER(m_fields->fuckingStupidPlaceholderToggle)
 			}
 
 			// lowkey i don't know how the hell we're gonna go about hiding the label. --raydeeux
