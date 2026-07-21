@@ -42,29 +42,18 @@ using namespace geode::prelude;
 		std::string m_description;\
 	};
 
-MAKE_STRUCT_TOGGLE(Pre)
-MAKE_STRUCT_TOGGLE(Mid)
-MAKE_STRUCT_TOGGLE(Edit)
 
-MAKE_STRUCT_NUMERIC(Pre, Double, double)
-MAKE_STRUCT_NUMERIC(Mid, Double, double)
-MAKE_STRUCT_NUMERIC(Edit, Double, double)
+#define START_STRUCT(type)\
+	MAKE_STRUCT_TOGGLE(type)\
+	MAKE_STRUCT_NUMERIC(type, Double, double)\
+	MAKE_STRUCT_NUMERIC(type, Long, long)\
+	MAKE_STRUCT(type, String)\
+	MAKE_STRUCT(type, LabeledButton)\
+	MAKE_STRUCT_GEODE_BUTTON(type)
 
-MAKE_STRUCT_NUMERIC(Pre, Long, long)
-MAKE_STRUCT_NUMERIC(Mid, Long, long)
-MAKE_STRUCT_NUMERIC(Edit, Long, long)
-
-MAKE_STRUCT(Pre, String)
-MAKE_STRUCT(Mid, String)
-MAKE_STRUCT(Edit, String)
-
-MAKE_STRUCT(Pre, LabeledButton)
-MAKE_STRUCT(Mid, LabeledButton)
-MAKE_STRUCT(Edit, LabeledButton)
-
-MAKE_STRUCT_GEODE_BUTTON(Pre)
-MAKE_STRUCT_GEODE_BUTTON(Mid)
-MAKE_STRUCT_GEODE_BUTTON(Edit)
+START_STRUCT(Pre)
+START_STRUCT(Mid)
+START_STRUCT(Edit)
 
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
