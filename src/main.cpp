@@ -94,11 +94,11 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
 #define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what editing this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, geode::utils::string::replace(desc.data(), fmt::format("<cl>(From {})</c>\n", mod->getName()), "")) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
 
-#define LISTENER_TOGGLE(type, capitalizedType)\
+#define LISTENER_TOGGLE(type, capitalizedType, stringifiedType)\
 	auto type##ToggleListener = Add##capitalizedType##ToggleEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##ToggleCallback callback, capitalizedType##InitialCallback initialValue, std::string_view desc, geode::Mod* mod) {\
 		if (mod && !name.empty()) {\
 			const std::string& lockedInDesc = FORMATTED_DESC;\
-			g_##type##Toggles[fmt::format("{}/{}-pre-toggle", modID, name)] = capitalizedType##ToggleSetting{\
+			g_##type##Toggles[fmt::format("{}/{}-" stringifiedType "-toggle", modID, name)] = capitalizedType##ToggleSetting{\
 				fmt::format("{}", name),\
 				FORMATTED_MOD_INFO,\
 				callback,\
@@ -110,106 +110,35 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 	});\
 	type##ToggleListener.leak();
 
+#define LISTENER_NUMERIC(type, capitalizedType, stringifiedType, optionsAPIType, stringifiedOptionsAPIType, cppType)\
+	auto type##optionsAPIType##Listener = Add##capitalizedType##optionsAPIType##Event().listen([](std::string_view name, std::string_view modID, capitalizedType##optionsAPIType##Callback callback, capitalizedType##InitialCallback##optionsAPIType initialValue, cppType min, cppType max, std::string_view desc, geode::Mod* mod) {\
+		if (mod && !name.empty() && min < max) {\
+			const std::string& lockedInDesc = FORMATTED_DESC;\
+			g_##type##optionsAPIType##s[fmt::format("{}/{}-" stringifiedType "-" stringifiedOptionsAPIType, modID, name)] = capitalizedType##optionsAPIType##Setting{\
+				fmt::format("{}", name),\
+				FORMATTED_MOD_INFO,\
+				callback, initialValue,\
+				min, max,\
+				lockedInDesc\
+			};\
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());\
+		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);\
+		return ListenerResult::Stop;\
+	});\
+	##type##optionsAPIType##Listener.leak();\
+
 $execute {
-	LISTENER_TOGGLE(pre, Pre)
-	LISTENER_TOGGLE(mid, Mid)
-	LISTENER_TOGGLE(edit, Edit)
+	LISTENER_TOGGLE(pre, Pre, "pre")
+	LISTENER_TOGGLE(mid, Mid, "mid")
+	LISTENER_TOGGLE(edit, Edit, "edit")
 
-	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preDoubles[fmt::format("{}/{}-pre-double", modID, name)] = PreDoubleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	preDoubleListener.leak();
+	LISTENER_NUMERIC(pre, Pre, "pre", Double, "double", double)
+	LISTENER_NUMERIC(mid, Mid, "mid", Double, "double", double)
+	LISTENER_NUMERIC(edit, Edit, "edit", Double, "double", double)
 
-	auto midDoubleListener = AddMidDoubleEvent().listen([](std::string_view name, std::string_view modID, MidDoubleCallback callback, MidInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midDoubles[fmt::format("{}/{}-mid-double", modID, name)] = MidDoubleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	midDoubleListener.leak();
-
-	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editDoubles[fmt::format("{}/{}-edit-double", modID, name)] = EditDoubleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	editDoubleListener.leak();
-
-	auto preLongListener = AddPreLongEvent().listen([](std::string_view name, std::string_view modID, PreLongCallback callback, PreInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preLongs[fmt::format("{}/{}-pre-long", modID, name)] = PreLongSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	preLongListener.leak();
-
-	auto midLongListener = AddMidLongEvent().listen([](std::string_view name, std::string_view modID, MidLongCallback callback, MidInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midLongs[fmt::format("{}/{}-mid-long", modID, name)] = MidLongSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	midLongListener.leak();
-
-	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, EditLongCallback callback, EditInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && min < max) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editLongs[fmt::format("{}/{}-edit-long", modID, name)] = EditLongSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				min, max,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);
-		return ListenerResult::Stop;
-	});
-	editLongListener.leak();
+	LISTENER_NUMERIC(pre, Pre, "pre", Long, "long", long)
+	LISTENER_NUMERIC(mid, Mid, "mid", Long, "long", long)
+	LISTENER_NUMERIC(edit, Edit, "edit", Long, "long", long)
 
 	auto preStringListener = AddPreStringEvent().listen([](std::string_view name, std::string_view modID, PreStringCallback callback, PreInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
