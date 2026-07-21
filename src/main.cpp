@@ -98,7 +98,7 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 	auto type##ToggleListener = Add##capitalizedType##ToggleEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##ToggleCallback callback, capitalizedType##InitialCallback initialValue, std::string_view desc, geode::Mod* mod) {\
 		if (mod && !name.empty()) {\
 			const std::string& lockedInDesc = FORMATTED_DESC;\
-			g_preToggles[fmt::format("{}/{}-pre-toggle", modID, name)] = capitalizedType##ToggleSetting{\
+			g_##type##Toggles[fmt::format("{}/{}-pre-toggle", modID, name)] = capitalizedType##ToggleSetting{\
 				fmt::format("{}", name),\
 				FORMATTED_MOD_INFO,\
 				callback,\
