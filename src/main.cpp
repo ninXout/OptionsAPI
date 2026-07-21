@@ -34,7 +34,7 @@ using namespace geode::prelude;
 
 MAKE_STRUCT_TOGGLE(Pre)
 MAKE_STRUCT_TOGGLE(Mid)
-MAKE_STRUCT_TOGGLE(Edit)
+MAKE_STRUCT_TOGGLE(Editor)
 
 MAKE_STRUCT_NUMERIC(Pre, Double, double)
 MAKE_STRUCT_NUMERIC(Mid, Double, double)
