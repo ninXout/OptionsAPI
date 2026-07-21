@@ -81,27 +81,27 @@ struct EditorGeodeButtonWithLabelSetting {
 
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
-std::map<std::string, EditorToggleSetting> g_editToggles;
+std::map<std::string, EditToggleSetting> g_editToggles;
 
 std::map<std::string, PreDoubleSetting> g_preDoubles;
 std::map<std::string, MidDoubleSetting> g_midDoubles;
-std::map<std::string, EditorDoubleSetting> g_editDoubles;
+std::map<std::string, EditDoubleSetting> g_editDoubles;
 
 std::map<std::string, PreLongSetting> g_preLongs;
 std::map<std::string, MidLongSetting> g_midLongs;
-std::map<std::string, EditorLongSetting> g_editLongs;
+std::map<std::string, EditLongSetting> g_editLongs;
 
 std::map<std::string, PreStringSetting> g_preStrings;
 std::map<std::string, MidStringSetting> g_midStrings;
-std::map<std::string, EditorStringSetting> g_editStrings;
+std::map<std::string, EditStringSetting> g_editStrings;
 
 std::map<std::string, PreLabeledButtonSetting> g_preLabeledButtons;
 std::map<std::string, MidLabeledButtonSetting> g_midLabeledButtons;
-std::map<std::string, EditorLabeledButtonSetting> g_editLabeledButtons;
+std::map<std::string, EditLabeledButtonSetting> g_editLabeledButtons;
 
 std::map<std::string, PreGeodeButtonWithLabelSetting> g_preGeodeButtonWithLabels;
 std::map<std::string, MidGeodeButtonWithLabelSetting> g_midGeodeButtonWithLabels;
-std::map<std::string, EditorGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabels;
+std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabels;
 
 #define MOD_NAME_DEVS_OTHERS mod->getName(), mod->getDevelopers().at(0), mod->getDevelopers().size() > 1 ? " and others" : ""
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
@@ -343,7 +343,7 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
+		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	preGeodeButtonWithLabelListener.leak();
@@ -358,7 +358,7 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
+		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	midGeodeButtonWithLabelListener.leak();
@@ -373,7 +373,7 @@ $execute {
 				lockedInDesc
 			};
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		 else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
+		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
 		return ListenerResult::Stop;
 	});
 	editGeodeButtonWithLabelListener.leak();
