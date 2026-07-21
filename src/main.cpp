@@ -38,19 +38,19 @@ MAKE_STRUCT_TOGGLE(Edit)
 
 MAKE_STRUCT_NUMERIC(Pre, Double, double)
 MAKE_STRUCT_NUMERIC(Mid, Double, double)
-MAKE_STRUCT_NUMERIC(Edit, Double, double)
+MAKE_STRUCT_NUMERIC(Editor, Double, double)
 
 MAKE_STRUCT_NUMERIC(Pre, Long, long)
 MAKE_STRUCT_NUMERIC(Mid, Long, long)
-MAKE_STRUCT_NUMERIC(Edit, Long, long)
+MAKE_STRUCT_NUMERIC(Editor, Long, long)
 
 MAKE_STRUCT(Pre, String)
 MAKE_STRUCT(Mid, String)
-MAKE_STRUCT(Edit, String)
+MAKE_STRUCT(Editor, String)
 
 MAKE_STRUCT(Pre, LabeledButton)
 MAKE_STRUCT(Mid, LabeledButton)
-MAKE_STRUCT(Edit, LabeledButton)
+MAKE_STRUCT(Editor, LabeledButton)
 
 struct PreGeodeButtonWithLabelSetting {
 	std::string m_name;
