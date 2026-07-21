@@ -32,6 +32,16 @@ using namespace geode::prelude;
 		std::string m_description;\
 	};
 
+#define MAKE_STRUCT_GEODE_BUTTON(type)\
+	struct type##GeodeButtonWithLabelSetting {\
+		std::string m_name;\
+		std::string m_modID;\
+		type##GeodeButtonWithLabelCallback m_callback;\
+		type##InitialCallbackGeodeButtonWithLabel m_initial;\
+		geode::Ref<geode::Button> m_button;\
+		std::string m_description;\
+	};
+
 MAKE_STRUCT_TOGGLE(Pre)
 MAKE_STRUCT_TOGGLE(Mid)
 MAKE_STRUCT_TOGGLE(Edit)
@@ -52,32 +62,9 @@ MAKE_STRUCT(Pre, LabeledButton)
 MAKE_STRUCT(Mid, LabeledButton)
 MAKE_STRUCT(Edit, LabeledButton)
 
-struct PreGeodeButtonWithLabelSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreGeodeButtonWithLabelCallback m_callback;
-	PreInitialCallbackGeodeButtonWithLabel m_initial;
-	geode::Ref<geode::Button> m_button;
-	std::string m_description;
-};
-
-struct MidGeodeButtonWithLabelSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidGeodeButtonWithLabelCallback m_callback;
-	MidInitialCallbackGeodeButtonWithLabel m_initial;
-	geode::Ref<geode::Button> m_button;
-	std::string m_description;
-};
-
-struct EditGeodeButtonWithLabelSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditGeodeButtonWithLabelCallback m_callback;
-	EditInitialCallbackGeodeButtonWithLabel m_initial;
-	geode::Ref<geode::Button> m_button;
-	std::string m_description;
-};
+MAKE_STRUCT_GEODE_BUTTON(Pre)
+MAKE_STRUCT_GEODE_BUTTON(Mid)
+MAKE_STRUCT_GEODE_BUTTON(Edit)
 
 std::map<std::string, PreToggleSetting> g_preToggles;
 std::map<std::string, MidToggleSetting> g_midToggles;
@@ -107,51 +94,26 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 #define FORMATTED_MOD_INFO fmt::format("{} by {}{}", MOD_NAME_DEVS_OTHERS)
 #define FORMATTED_DESC desc.empty() ? fmt::format("<cl>(From {} by {}{})</c>\n[No description provided! It's anyone's guess as to what editing this option does. Go ask <co>{}</c> to fill in this description, maybe?]", MOD_NAME_DEVS_OTHERS, mod->getDevelopers().at(0)) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {} by {}{})</c>\n", MOD_NAME_DEVS_OTHERS)) ? fmt::format("{}", desc) : geode::utils::string::startsWith(desc, fmt::format("<cl>(From {})</c>\n", mod->getName())) ? fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, geode::utils::string::replace(desc.data(), fmt::format("<cl>(From {})</c>\n", mod->getName()), "")) : fmt::format("<cl>(From {} by {}{})</c>\n{}", MOD_NAME_DEVS_OTHERS, desc)
 
+#define LISTENER_TOGGLE(type, capitalizedType)\
+	auto type##ToggleListener = Add##capitalizedType##ToggleEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##ToggleCallback callback, capitalizedType##InitialCallback initialValue, std::string_view desc, geode::Mod* mod) {\
+		if (mod && !name.empty()) {\
+			const std::string& lockedInDesc = FORMATTED_DESC;\
+			g_preToggles[fmt::format("{}/{}-pre-toggle", modID, name)] = capitalizedType##ToggleSetting{\
+				fmt::format("{}", name),\
+				FORMATTED_MOD_INFO,\
+				callback,\
+				initialValue,\
+				lockedInDesc\
+			};\
+		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());\
+		return ListenerResult::Stop;\
+	});\
+	type##ToggleListener.leak();
+
 $execute {
-	auto preToggleListener = AddPreToggleEvent().listen([](std::string_view name, std::string_view modID, PreToggleCallback callback, PreInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preToggles[fmt::format("{}/{}-pre-toggle", modID, name)] = PreToggleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback,
-				initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	preToggleListener.leak();
-
-	auto midToggleListener = AddMidToggleEvent().listen([](std::string_view name, std::string_view modID, MidToggleCallback callback, MidInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midToggles[fmt::format("{}/{}-mid-toggle", modID, name)] = MidToggleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback,
-				initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	midToggleListener.leak();
-
-	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, EditToggleCallback callback, EditInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editToggles[fmt::format("{}/{}-edit-toggle", modID, name)] = EditToggleSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback,
-				initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	editToggleListener.leak();
+	LISTENER_TOGGLE(pre, Pre)
+	LISTENER_TOGGLE(mid, Mid)
+	LISTENER_TOGGLE(edit, Edit)
 
 	auto preDoubleListener = AddPreDoubleEvent().listen([](std::string_view name, std::string_view modID, PreDoubleCallback callback, PreInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
