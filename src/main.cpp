@@ -3,137 +3,54 @@
 
 using namespace geode::prelude;
 
-struct PreToggleSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreToggleCallback m_callback;
-	PreInitialCallback m_initial;
-	std::string m_description;
-};
+#define MAKE_STRUCT_TOGGLE(type)\
+	struct type##ToggleSetting {\
+		std::string m_name;\
+		std::string m_modID;\
+		type##ToggleCallback m_callback;\
+		type##InitialCallback m_initial;\
+		std::string m_description;\
+	};
 
-struct MidToggleSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidToggleCallback m_callback;
-	MidInitialCallback m_initial;
-	std::string m_description;
-};
+#define MAKE_STRUCT_NUMERIC(type, optionsAPIType, cppType)\
+	struct type##optionsAPIType##Setting {\
+		std::string m_name;\
+		std::string m_modID;\
+		type##optionsAPIType##Callback m_callback;\
+		type##InitialCallback##optionsAPIType m_initial;\
+		cppType m_min;\
+		cppType m_max;\
+		std::string m_description;\
+	};
 
-struct EditorToggleSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditToggleCallback m_callback;
-	EditInitialCallback m_initial;
-	std::string m_description;
-};
+#define MAKE_STRUCT(type, optionsAPIType)\
+	struct type##optionsAPIType##Setting {\
+		std::string m_name;\
+		std::string m_modID;\
+		type##optionsAPIType##Callback m_callback;\
+		type##InitialCallback##optionsAPIType m_initial;\
+		std::string m_description;\
+	};
 
-struct PreDoubleSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreDoubleCallback m_callback;
-	PreInitialCallbackDouble m_initial;
-	double m_min;
-	double m_max;
-	std::string m_description;
-};
+MAKE_STRUCT_TOGGLE(Pre)
+MAKE_STRUCT_TOGGLE(Mid)
+MAKE_STRUCT_TOGGLE(Edit)
 
-struct MidDoubleSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidDoubleCallback m_callback;
-	MidInitialCallbackDouble m_initial;
-	double m_min;
-	double m_max;
-	std::string m_description;
-};
+MAKE_STRUCT_NUMERIC(Pre, Double, double)
+MAKE_STRUCT_NUMERIC(Mid, Double, double)
+MAKE_STRUCT_NUMERIC(Edit, Double, double)
 
-struct EditorDoubleSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditDoubleCallback m_callback;
-	EditInitialCallbackDouble m_initial;
-	double m_min;
-	double m_max;
-	std::string m_description;
-};
+MAKE_STRUCT_NUMERIC(Pre, Long, long)
+MAKE_STRUCT_NUMERIC(Mid, Long, long)
+MAKE_STRUCT_NUMERIC(Edit, Long, long)
 
-struct PreLongSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreLongCallback m_callback;
-	PreInitialCallbackLong m_initial;
-	long m_min;
-	long m_max;
-	std::string m_description;
-};
+MAKE_STRUCT(Pre, String)
+MAKE_STRUCT(Mid, String)
+MAKE_STRUCT(Edit, String)
 
-struct MidLongSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidLongCallback m_callback;
-	MidInitialCallbackLong m_initial;
-	long m_min;
-	long m_max;
-	std::string m_description;
-};
-
-struct EditorLongSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditLongCallback m_callback;
-	EditInitialCallbackLong m_initial;
-	long m_min;
-	long m_max;
-	std::string m_description;
-};
-
-struct PreStringSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreStringCallback m_callback;
-	PreInitialCallbackString m_initial;
-	std::string m_description;
-};
-
-struct MidStringSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidStringCallback m_callback;
-	MidInitialCallbackString m_initial;
-	std::string m_description;
-};
-
-struct EditorStringSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditStringCallback m_callback;
-	EditInitialCallbackString m_initial;
-	std::string m_description;
-};
-
-struct PreLabeledButtonSetting {
-	std::string m_name;
-	std::string m_modID;
-	PreLabeledButtonCallback m_callback;
-	PreInitialCallbackLabeledButton m_initial;
-	std::string m_description;
-};
-
-struct MidLabeledButtonSetting {
-	std::string m_name;
-	std::string m_modID;
-	MidLabeledButtonCallback m_callback;
-	MidInitialCallbackLabeledButton m_initial;
-	std::string m_description;
-};
-
-struct EditorLabeledButtonSetting {
-	std::string m_name;
-	std::string m_modID;
-	EditLabeledButtonCallback m_callback;
-	EditInitialCallbackLabeledButton m_initial;
-	std::string m_description;
-};
+MAKE_STRUCT(Pre, LabeledButton)
+MAKE_STRUCT(Mid, LabeledButton)
+MAKE_STRUCT(Edit, LabeledButton)
 
 struct PreGeodeButtonWithLabelSetting {
 	std::string m_name;
@@ -768,8 +685,8 @@ $on_game(Loaded) {
 	}\
 	SHOW_OPTIONS_API_INFORMATION
 
-#define GRAB(k, v, type, optionAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong, somePointer)\
-	for (const auto& [k, v] : g_##type##optionAPIType##s) {\
+#define GRAB(k, v, type, optionsAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong, somePointer)\
+	for (const auto& [k, v] : g_##type##optionsAPIType##s) {\
 		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, v.m_description, arbitraryOffset);\
 		DUMMY_CHECKBOX_SANITY_CHECK\
 		SET_UP_TEXTINPUT_USING(v, filterType, somePointer)\
@@ -783,8 +700,8 @@ $on_game(Loaded) {
 		index++;\
 	}
 
-#define GRAB_FOR_EDITOR(k, v, type, optionAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong)\
-	for (const auto& [k, v] : g_##type##optionAPIType##s) {\
+#define GRAB_FOR_EDITOR(k, v, type, optionsAPIType, modifyClass, arbitraryOffset, filterType, numFromStringType, twoAsDoubleOrTwoAsLong)\
+	for (const auto& [k, v] : g_##type##optionsAPIType##s) {\
 		CCMenuItemToggler* dummyCheckbox = modifyClass::addDummyCheckboxWithDescription(index, v.m_description, arbitraryOffset);\
 		DUMMY_CHECKBOX_SANITY_CHECK\
 		SET_UP_TEXTINPUT_USING(v, filterType)\
