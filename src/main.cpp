@@ -176,6 +176,7 @@ double dummyValue = 150.;
 long otherDummy = 5000;
 std::string strDummy = "shane hollander";
 $on_game(Loaded) {
+	return; // uncomment this for debugging
 	Mod* mod = Mod::get();
 	std::string desc;
 	const std::string& trueDesc = FORMATTED_DESC;
@@ -410,13 +411,15 @@ $on_game(Loaded) {
 		return placeholder;\
 	}
 
-#define MAKE_LABEL(someValue)\
+#define MAKE_LABEL(someKey, someValue)\
 	CCLabelBMFont* label = CCLabelBMFont::create(someValue.m_name.c_str(), "bigFont.fnt");\
 	label->limitLabelWidth(idealWidth * .125f, .125f, .00001f);\
+	primaryElement->setID(fmt::format("companion-label"_spr, geode::utils::string::replace(someKey, "/", "-")));\
 	container->addChild(label);\
 	container->updateLayout();
 
 #define POSITION_AND_SETUP_CONTAINER(someKey, someValue)\
+	primaryElement->setID(fmt::format("{}-primary-element"_spr, geode::utils::string::replace(someKey, "/", "-")));\
 	container->addChild(primaryElement);\
 	container->setLayout(RowLayout::create()->setAutoScale(true)->setDefaultScaleLimits(.0001f, 1.f)->setGap(15.f)->setCrossAxisOverflow(true));\
 	this->m_buttonMenu->addChild(container);\
@@ -491,7 +494,7 @@ $on_game(Loaded) {
 			callback(someCapturedPointer, clamped);\
 		});\
 		POSITION_AND_SETUP_CONTAINER(k, v)\
-		MAKE_LABEL(v)\
+		MAKE_LABEL(k, v)\
 		index++;\
 	}
 
@@ -506,7 +509,7 @@ $on_game(Loaded) {
 			callback(clamped);\
 		});\
 		POSITION_AND_SETUP_CONTAINER(k, v)\
-		MAKE_LABEL(v)\
+		MAKE_LABEL(k, v)\
 		index++;\
 	}
 
@@ -519,7 +522,7 @@ $on_game(Loaded) {
 			callback(ptr, input);\
 		});\
 		POSITION_AND_SETUP_CONTAINER(n, y)\
-		MAKE_LABEL(y)\
+		MAKE_LABEL(n, y)\
 		index++;\
 	}\
 	for (const auto& [o, z] : g_##type##LabeledButtons) {\
@@ -530,8 +533,8 @@ $on_game(Loaded) {
 			callback(somePointer);\
 		});\
 		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));\
-		z.m_initial(somePointer);\
 		POSITION_AND_SETUP_CONTAINER(o, z)\
+		z.m_initial(somePointer);\
 		index++;\
 	}\
 	for (const auto& [p, a] : g_##type##GeodeButtonWithLabels) {\
@@ -542,9 +545,9 @@ $on_game(Loaded) {
 			callback(somePointer);\
 		});\
 		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));\
-		a.m_initial(somePointer);\
 		POSITION_AND_SETUP_CONTAINER(p, a)\
-		MAKE_LABEL(a)\
+		MAKE_LABEL(p, a)\
+		a.m_initial(somePointer);\
 		index++;\
 	}
 
@@ -557,7 +560,7 @@ $on_game(Loaded) {
 			callback(input);\
 		});\
 		POSITION_AND_SETUP_CONTAINER(n, y)\
-		MAKE_LABEL(y)\
+		MAKE_LABEL(n, y)\
 		index++;\
 	}\
 	for (const auto& [o, z] : g_editLabeledButtons) {\
@@ -568,8 +571,8 @@ $on_game(Loaded) {
 			callback();\
 		});\
 		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(o, "/", "-")));\
-		z.m_initial();\
 		POSITION_AND_SETUP_CONTAINER(o, z)\
+		z.m_initial();\
 		index++;\
 	}\
 	for (const auto& [p, a] : g_editGeodeButtonWithLabels) {\
@@ -580,9 +583,9 @@ $on_game(Loaded) {
 			callback();\
 		});\
 		primaryElement->setID(fmt::format("{}"_spr, geode::utils::string::replace(p, "/", "-")));\
-		a.m_initial();\
 		POSITION_AND_SETUP_CONTAINER(p, a)\
-		MAKE_LABEL(a)\
+		MAKE_LABEL(p, a)\
+		a.m_initial();\
 		index++;\
 	}
 

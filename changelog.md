@@ -1,3 +1,9 @@
+# 1.1.0
+- Expanded Options Types To Doubles/Floats, Longs/Ints, String, Labeled Buttons, And Buttons With Labels
+  - This Changelog Item Means Nothing Much To The End User Except That Mods Can Add More Than Plain Old Checkboxes To The Options Menus You've Known (And Hopefully Love More Often Now)
+  - The UI For These New Options Is A Bit Messy At The Moment, Apologies In Advance; Please Do Not Ask When They Will Be Revisited
+- Silly Fixes To Changes Introduced In 1.0.6 For How Information About Options Added By Other Mods Is Displayed
+
 # 1.0.6
 - Silly Fixes For Editor Toggles Which Thankfully No One Has Used Ever Up Until This Point
 - Smaller Changes To How Information About Toggles Added By Other Mods Is Displayed

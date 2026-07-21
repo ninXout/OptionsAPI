@@ -221,7 +221,7 @@ GEODEBUTTONWITHLABELEVENT(Pre, PreGeodeButtonWithLabelCallback, PreInitialCallba
 GEODEBUTTONWITHLABELEVENT(Mid, MidGeodeButtonWithLabelCallback, MidInitialCallbackGeodeButtonWithLabel)
 GEODEBUTTONWITHLABELEVENT(Edit, EditGeodeButtonWithLabelCallback, EditInitialCallbackGeodeButtonWithLabel)
 
-namespace OptionsAPI { // TODO: expand to double, long, and std::string
+namespace OptionsAPI {
     template <typename T>
     void addPreLevelSetting(std::string_view name, std::string_view id, std::function<void(GJGameLevel*)> callback, std::function<T(GJGameLevel*)> initialValue, std::string_view desc);
 
