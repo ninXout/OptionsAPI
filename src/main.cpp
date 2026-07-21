@@ -125,7 +125,7 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);\
 		return ListenerResult::Stop;\
 	});\
-	##type##optionsAPIType##Listener.leak();\
+	type##optionsAPIType##Listener.leak();\
 
 $execute {
 	LISTENER_TOGGLE(pre, Pre, "pre")
