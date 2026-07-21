@@ -466,7 +466,7 @@ $on_game(Loaded) {
 		const auto& information = std::next(g_##type##Doubles.begin(), senderTag - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
 		NAME_AND_DESC\
 	} else if (senderTag < type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
-		const auto& information = std::next(g_editLongs.begin(), senderTag - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
+		const auto& information = std::next(g_##type##Longs.begin(), senderTag - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
 		NAME_AND_DESC\
 	} else if (senderTag < type##StringsCount + type##LongsCount + type##DoublesCount + type##TogglesCount + typeButCapsLock##_TOGGLES_START) {\
 		const auto& information = std::next(g_##type##Strings.begin(), senderTag - type##LongsCount - type##DoublesCount - type##TogglesCount - typeButCapsLock##_TOGGLES_START)->second;\
