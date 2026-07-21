@@ -482,6 +482,18 @@ $on_game(Loaded) {
 #define EDIT_TOGGLES_START 200
 #define ACTUAL_EDITOR_TOGGLER_COUNT 25
 
+#define DISABLE_TOGGLER(placeholder)\
+	placeholder->setScale(0);\
+	placeholder->setEnabled(false);\
+	placeholder->m_pListener = nullptr;\
+	placeholder->m_notClickable = true;\
+	placeholder->m_pfnSelector = nullptr;\
+	placeholder->m_onButton->removeMeAndCleanup();\
+	placeholder->m_onButton = nullptr;\
+	placeholder->m_offButton->removeMeAndCleanup();\
+	placeholder->m_offButton = nullptr;\
+	placeholder->removeAllChildrenWithCleanup(true);
+
 #define DECLARE_DUMMY_CHECKBOX_FUNCTION\
 	CCMenuItemToggler* addDummyCheckboxWithDescription(const int tag, const std::string_view desc, const int offsetBecauseOfStupidNoclipToggleOrOtherStupidReason = 0) {\
 		if (!this->m_buttonMenu) return nullptr;\
@@ -492,16 +504,7 @@ $on_game(Loaded) {
 		CCMenuItemToggler* placeholder = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(tag));\
 		if (!placeholder) return nullptr;\
 		placeholder->setID(fmt::format("if-you-activate-me-via-devtools-the-game-will-crash-{}"_spr, tag));\
-		placeholder->setScale(0);\
-		placeholder->setEnabled(false);\
-		placeholder->m_pListener = nullptr;\
-		placeholder->m_notClickable = true;\
-		placeholder->m_pfnSelector = nullptr;\
-		placeholder->m_onButton->removeMeAndCleanup();\
-		placeholder->m_onButton = nullptr;\
-		placeholder->m_offButton->removeMeAndCleanup();\
-		placeholder->m_offButton = nullptr;\
-		placeholder->removeAllChildrenWithCleanup(true);\
+		DISABLE_TOGGLER(placeholder)\
 		placeholder->setUserObject("page-number"_spr, CCInteger::create(page));\
 		return placeholder;\
 	}
@@ -795,16 +798,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 		m_fields->yetAnotherFuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(yetAnotherPlaceholderToggleTag));
 		if (m_fields->yetAnotherFuckingStupidPlaceholderToggle) {
 			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setID("if-you-activate-this-placeholder-the-game-will-crash"_spr);
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setScale(0);
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->setEnabled(false);
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_pListener = nullptr;
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_notClickable = true;
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_pfnSelector = nullptr;
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_onButton->removeMeAndCleanup();
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_onButton = nullptr;
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_offButton->removeMeAndCleanup();
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->m_offButton = nullptr;
-			m_fields->yetAnotherFuckingStupidPlaceholderToggle->removeAllChildrenWithCleanup(true);
+			DISABLE_TOGGLER(m_fields->yetAnotherFuckingStupidPlaceholderToggle)
 		}
 
 		// addToggle("Practice Music Sync", 10, m_baseGameLayer->m_practiceMusicSync, "Use the level's song instead of the normal practice mode song.");
@@ -827,16 +821,7 @@ class $modify(OAPIGameOptionsLayer, GameOptionsLayer) {
 			m_fields->fuckingStupidPlaceholderToggle = typeinfo_cast<CCMenuItemToggler*>(this->m_buttonMenu->getChildByTag(placeholderToggleTag));
 			if (m_fields->fuckingStupidPlaceholderToggle) {
 				m_fields->fuckingStupidPlaceholderToggle->setID("if-you-activate-this-other-placeholder-the-game-will-crash"_spr);
-				m_fields->fuckingStupidPlaceholderToggle->setScale(0);
-				m_fields->fuckingStupidPlaceholderToggle->setEnabled(false);
-				m_fields->fuckingStupidPlaceholderToggle->m_pListener = nullptr;
-				m_fields->fuckingStupidPlaceholderToggle->m_notClickable = true;
-				m_fields->fuckingStupidPlaceholderToggle->m_pfnSelector = nullptr;
-				m_fields->fuckingStupidPlaceholderToggle->m_onButton->removeMeAndCleanup();
-				m_fields->fuckingStupidPlaceholderToggle->m_onButton = nullptr;
-				m_fields->fuckingStupidPlaceholderToggle->m_offButton->removeMeAndCleanup();
-				m_fields->fuckingStupidPlaceholderToggle->m_offButton = nullptr;
-				m_fields->fuckingStupidPlaceholderToggle->removeAllChildrenWithCleanup(true);
+				DISABLE_TOGGLER(m_fields->yetAnotherFuckingStupidPlaceholderToggle)
 			}
 
 			// lowkey i don't know how the hell we're gonna go about hiding the label. --raydeeux
