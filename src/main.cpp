@@ -168,30 +168,18 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 	});\
 	type##GeodeButtonWithLabelListener.leak();
 
-$execute {
-	LISTENER_TOGGLE(pre, Pre, "pre")
-	LISTENER_TOGGLE(mid, Mid, "mid")
-	LISTENER_TOGGLE(edit, Edit, "edit")
+#define START_LISTENERS(type, capitalizedType, stringifiedType)\
+	LISTENER_TOGGLE(type, capitalizedType, stringifiedType)\
+	LISTENER_NUMERIC(type, capitalizedType, stringifiedType, Double, "double", double)\
+	LISTENER_NUMERIC(type, capitalizedType, stringifiedType, Long, "long", long)\
+	LISTENER_STRING(type, capitalizedType, stringifiedType)\
+	LISTENER_LABELED_BUTTON(type, capitalizedType, stringifiedType)\
+	LISTENER_GEODE_BUTTON(type, capitalizedType, stringifiedType)
 
-	LISTENER_NUMERIC(pre, Pre, "pre", Double, "double", double)
-	LISTENER_NUMERIC(mid, Mid, "mid", Double, "double", double)
-	LISTENER_NUMERIC(edit, Edit, "edit", Double, "double", double)
-
-	LISTENER_NUMERIC(pre, Pre, "pre", Long, "long", long)
-	LISTENER_NUMERIC(mid, Mid, "mid", Long, "long", long)
-	LISTENER_NUMERIC(edit, Edit, "edit", Long, "long", long)
-
-	LISTENER_STRING(pre, Pre, "pre")
-	LISTENER_STRING(mid, Mid, "mid")
-	LISTENER_STRING(edit, Edit, "edit")
-
-	LISTENER_LABELED_BUTTON(pre, Pre, "pre")
-	LISTENER_LABELED_BUTTON(mid, Mid, "mid")
-	LISTENER_LABELED_BUTTON(edit, Edit, "edit")
-
-	LISTENER_GEODE_BUTTON(pre, Pre, "pre")
-	LISTENER_GEODE_BUTTON(mid, Mid, "mid")
-	LISTENER_GEODE_BUTTON(edit, Edit, "edit")
+$on_mod(Loaded) {
+	START_LISTENERS(pre, Pre, "pre")
+	START_LISTENERS(mid, Mid, "mid")
+	START_LISTENERS(edit, Edit, "edit")
 }
 
 // keep for debugging
