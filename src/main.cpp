@@ -34,23 +34,23 @@ using namespace geode::prelude;
 
 MAKE_STRUCT_TOGGLE(Pre)
 MAKE_STRUCT_TOGGLE(Mid)
-MAKE_STRUCT_TOGGLE(Editor)
+MAKE_STRUCT_TOGGLE(Edit)
 
 MAKE_STRUCT_NUMERIC(Pre, Double, double)
 MAKE_STRUCT_NUMERIC(Mid, Double, double)
-MAKE_STRUCT_NUMERIC(Editor, Double, double)
+MAKE_STRUCT_NUMERIC(Edit, Double, double)
 
 MAKE_STRUCT_NUMERIC(Pre, Long, long)
 MAKE_STRUCT_NUMERIC(Mid, Long, long)
-MAKE_STRUCT_NUMERIC(Editor, Long, long)
+MAKE_STRUCT_NUMERIC(Edit, Long, long)
 
 MAKE_STRUCT(Pre, String)
 MAKE_STRUCT(Mid, String)
-MAKE_STRUCT(Editor, String)
+MAKE_STRUCT(Edit, String)
 
 MAKE_STRUCT(Pre, LabeledButton)
 MAKE_STRUCT(Mid, LabeledButton)
-MAKE_STRUCT(Editor, LabeledButton)
+MAKE_STRUCT(Edit, LabeledButton)
 
 struct PreGeodeButtonWithLabelSetting {
 	std::string m_name;
@@ -141,7 +141,7 @@ $execute {
 	auto editToggleListener = AddEditToggleEvent().listen([](std::string_view name, std::string_view modID, EditToggleCallback callback, EditInitialCallback initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editToggles[fmt::format("{}/{}-edit-toggle", modID, name)] = EditorToggleSetting{
+			g_editToggles[fmt::format("{}/{}-edit-toggle", modID, name)] = EditToggleSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback,
@@ -188,7 +188,7 @@ $execute {
 	auto editDoubleListener = AddEditDoubleEvent().listen([](std::string_view name, std::string_view modID, EditDoubleCallback callback, EditInitialCallbackDouble initialValue, double min, double max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editDoubles[fmt::format("{}/{}-edit-double", modID, name)] = EditorDoubleSetting{
+			g_editDoubles[fmt::format("{}/{}-edit-double", modID, name)] = EditDoubleSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback, initialValue,
@@ -236,7 +236,7 @@ $execute {
 	auto editLongListener = AddEditLongEvent().listen([](std::string_view name, std::string_view modID, EditLongCallback callback, EditInitialCallbackLong initialValue, long min, long max, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && min < max) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editLongs[fmt::format("{}/{}-edit-long", modID, name)] = EditorLongSetting{
+			g_editLongs[fmt::format("{}/{}-edit-long", modID, name)] = EditLongSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback, initialValue,
@@ -280,7 +280,7 @@ $execute {
 	auto editStringListener = AddEditStringEvent().listen([](std::string_view name, std::string_view modID, EditStringCallback callback, EditInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editStrings[fmt::format("{}/{}-edit-string", modID, name)] = EditorStringSetting{
+			g_editStrings[fmt::format("{}/{}-edit-string", modID, name)] = EditStringSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback, initialValue,
@@ -322,7 +322,7 @@ $execute {
 	auto editLabeledButtonListener = AddEditLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, EditLabeledButtonCallback callback, EditInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editLabeledButtons[fmt::format("{}/{}-edit-labeled-button", modID, name)] = EditorLabeledButtonSetting{
+			g_editLabeledButtons[fmt::format("{}/{}-edit-labeled-button", modID, name)] = EditLabeledButtonSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback, initialValue,
@@ -366,7 +366,7 @@ $execute {
 	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
 		if (mod && !name.empty() && button && button.data()) {
 			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditorGeodeButtonWithLabelSetting{
+			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditGeodeButtonWithLabelSetting{
 				fmt::format("{}", name),
 				FORMATTED_MOD_INFO,
 				callback, initialValue, button,
@@ -418,7 +418,7 @@ $on_game(Loaded) {
 			-200.f, 200.f,
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = EditorDoubleSetting{
+		g_editDoubles[fmt::format("dummy-double-setting-double-{}"_spr, i)] = EditDoubleSetting{
 			fmt::format("dummy double setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](double value) {
@@ -461,7 +461,7 @@ $on_game(Loaded) {
 			-1000, 1000,
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editLongs[fmt::format("dummy-double-setting-long-{}"_spr, i)] = EditorLongSetting{
+		g_editLongs[fmt::format("dummy-double-setting-long-{}"_spr, i)] = EditLongSetting{
 			fmt::format("dummy long setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](long value) {
@@ -502,7 +502,7 @@ $on_game(Loaded) {
 			},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editStrings[fmt::format("dummy-string-setting-string-{}"_spr, i)] = EditorStringSetting{
+		g_editStrings[fmt::format("dummy-string-setting-string-{}"_spr, i)] = EditStringSetting{
 			fmt::format("dummy string setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[](std::string value) {
@@ -532,7 +532,7 @@ $on_game(Loaded) {
 			[](GJGameLevel* level) {},
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = EditorLabeledButtonSetting{
+		g_editLabeledButtons[fmt::format("dummy-labeled-button-{}"_spr, i)] = EditLabeledButtonSetting{
 			fmt::format("dummy labeled button setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[]() {
@@ -563,7 +563,7 @@ $on_game(Loaded) {
 			}, geode::Ref(geode::Button::createWithSprite("dialogIcon_056.png")),
 			fmt::format("#{}\n{}", i, trueDesc)
 		};
-		g_editGeodeButtonWithLabels[fmt::format("dummy-labeled-geode-button-{}"_spr, i)] = EditorGeodeButtonWithLabelSetting{
+		g_editGeodeButtonWithLabels[fmt::format("dummy-labeled-geode-button-{}"_spr, i)] = EditGeodeButtonWithLabelSetting{
 			fmt::format("dummy labeled geode button setting #{}", i),
 			FORMATTED_MOD_INFO,
 			[]() {
