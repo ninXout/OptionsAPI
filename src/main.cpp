@@ -123,7 +123,21 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);\
 		return ListenerResult::Stop;\
 	});\
-	type##optionsAPIType##Listener.leak();\
+	type##optionsAPIType##Listener.leak();
+
+#define LISTENER_STRING(type, capitalizedType, stringifiedType)\
+	auto type##StringListener = Add##capitalizedType##StringEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##StringCallback callback, capitalizedType##InitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {\
+		if (mod && !name.empty()) {\
+			g_##type##Strings[fmt::format("{}/{}-" stringifiedType "-string", modID, name)] = capitalizedType##StringSetting{\
+				fmt::format("{}", name),\
+				FORMATTED_MOD_INFO,\
+				callback, initialValue,\
+				FORMATTED_DESC\
+			};\
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());\
+		return ListenerResult::Stop;\
+	});\
+	type##StringListener.leak();
 
 #define LISTENER_LABELED_BUTTON(type, capitalizedType, stringifiedType)\
 	auto type##LabeledButtonListener = Add##capitalizedType##LabeledButtonEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##LabeledButtonCallback callback, capitalizedType##InitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {\
@@ -167,47 +181,9 @@ $execute {
 	LISTENER_NUMERIC(mid, Mid, "mid", Long, "long", long)
 	LISTENER_NUMERIC(edit, Edit, "edit", Long, "long", long)
 
-	auto preStringListener = AddPreStringEvent().listen([](std::string_view name, std::string_view modID, PreStringCallback callback, PreInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preStrings[fmt::format("{}/{}-pre-string", modID, name)] = PreStringSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	preStringListener.leak();
-
-	auto midStringListener = AddMidStringEvent().listen([](std::string_view name, std::string_view modID, MidStringCallback callback, MidInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midStrings[fmt::format("{}/{}-mid-string", modID, name)] = MidStringSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	midStringListener.leak();
-
-	auto editStringListener = AddEditStringEvent().listen([](std::string_view name, std::string_view modID, EditStringCallback callback, EditInitialCallbackString initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editStrings[fmt::format("{}/{}-edit-string", modID, name)] = EditStringSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	editStringListener.leak();
+	LISTENER_STRING(pre, Pre, "pre")
+	LISTENER_STRING(mid, Mid, "mid")
+	LISTENER_STRING(edit, Edit, "edit")
 
 	LISTENER_LABELED_BUTTON(pre, Pre, "pre")
 	LISTENER_LABELED_BUTTON(mid, Mid, "mid")
