@@ -70,7 +70,7 @@ struct MidGeodeButtonWithLabelSetting {
 	std::string m_description;
 };
 
-struct EditorGeodeButtonWithLabelSetting {
+struct EditGeodeButtonWithLabelSetting {
 	std::string m_name;
 	std::string m_modID;
 	EditGeodeButtonWithLabelCallback m_callback;
