@@ -97,13 +97,12 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 #define LISTENER_TOGGLE(type, capitalizedType, stringifiedType)\
 	auto type##ToggleListener = Add##capitalizedType##ToggleEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##ToggleCallback callback, capitalizedType##InitialCallback initialValue, std::string_view desc, geode::Mod* mod) {\
 		if (mod && !name.empty()) {\
-			const std::string& lockedInDesc = FORMATTED_DESC;\
 			g_##type##Toggles[fmt::format("{}/{}-" stringifiedType "-toggle", modID, name)] = capitalizedType##ToggleSetting{\
 				fmt::format("{}", name),\
 				FORMATTED_MOD_INFO,\
 				callback,\
 				initialValue,\
-				lockedInDesc\
+				FORMATTED_DESC\
 			};\
 		} else if (mod && name.empty()) log::error("a setting from {} was provided without a name!", mod->getName());\
 		return ListenerResult::Stop;\
@@ -113,19 +112,47 @@ std::map<std::string, EditGeodeButtonWithLabelSetting> g_editGeodeButtonWithLabe
 #define LISTENER_NUMERIC(type, capitalizedType, stringifiedType, optionsAPIType, stringifiedOptionsAPIType, cppType)\
 	auto type##optionsAPIType##Listener = Add##capitalizedType##optionsAPIType##Event().listen([](std::string_view name, std::string_view modID, capitalizedType##optionsAPIType##Callback callback, capitalizedType##InitialCallback##optionsAPIType initialValue, cppType min, cppType max, std::string_view desc, geode::Mod* mod) {\
 		if (mod && !name.empty() && min < max) {\
-			const std::string& lockedInDesc = FORMATTED_DESC;\
 			g_##type##optionsAPIType##s[fmt::format("{}/{}-" stringifiedType "-" stringifiedOptionsAPIType, modID, name)] = capitalizedType##optionsAPIType##Setting{\
 				fmt::format("{}", name),\
 				FORMATTED_MOD_INFO,\
 				callback, initialValue,\
 				min, max,\
-				lockedInDesc\
+				FORMATTED_DESC\
 			};\
 		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());\
 		else if (mod && min >= max) log::error("UH-OH! One of the developers of {} mixed up their minimums and maximums! (attempted min: {}, attempted max: {})", mod->getName(), min, max);\
 		return ListenerResult::Stop;\
 	});\
 	type##optionsAPIType##Listener.leak();\
+
+#define LISTENER_LABELED_BUTTON(type, capitalizedType, stringifiedType)\
+	auto type##LabeledButtonListener = Add##capitalizedType##LabeledButtonEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##LabeledButtonCallback callback, capitalizedType##InitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {\
+		if (mod && !name.empty()) {\
+			g_##type##LabeledButtons[fmt::format("{}/{}-" stringifiedType "-labeled-button", modID, name)] = capitalizedType##LabeledButtonSetting{\
+				fmt::format("{}", name),\
+				FORMATTED_MOD_INFO,\
+				callback, initialValue,\
+				FORMATTED_DESC\
+			};\
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());\
+		return ListenerResult::Stop;\
+	});\
+	type##LabeledButtonListener.leak();
+
+#define LISTENER_GEODE_BUTTON(type, capitalizedType, stringifiedType)\
+	auto type##GeodeButtonWithLabelListener = Add##capitalizedType##GeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, capitalizedType##GeodeButtonWithLabelCallback callback, capitalizedType##InitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {\
+		if (mod && !name.empty() && button && button.data()) {\
+			g_##type##GeodeButtonWithLabels[fmt::format("{}/{}-" stringifiedType "-geode-button-with-label", modID, name)] = capitalizedType##GeodeButtonWithLabelSetting{\
+				fmt::format("{}", name),\
+				FORMATTED_MOD_INFO,\
+				callback, initialValue, button,\
+				FORMATTED_DESC\
+			};\
+		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());\
+		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());\
+		return ListenerResult::Stop;\
+	});\
+	type##GeodeButtonWithLabelListener.leak();
 
 $execute {
 	LISTENER_TOGGLE(pre, Pre, "pre")
@@ -182,92 +209,13 @@ $execute {
 	});
 	editStringListener.leak();
 
-	auto preLabeledButtonListener = AddPreLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, PreLabeledButtonCallback callback, PreInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preLabeledButtons[fmt::format("{}/{}-pre-labeled-button", modID, name)] = PreLabeledButtonSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	preLabeledButtonListener.leak();
+	LISTENER_LABELED_BUTTON(pre, Pre, "pre")
+	LISTENER_LABELED_BUTTON(mid, Mid, "mid")
+	LISTENER_LABELED_BUTTON(edit, Edit, "edit")
 
-	auto midLabeledButtonListener = AddMidLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, MidLabeledButtonCallback callback, MidInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midLabeledButtons[fmt::format("{}/{}-mid-labeled-button", modID, name)] = MidLabeledButtonSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	midLabeledButtonListener.leak();
-
-	auto editLabeledButtonListener = AddEditLabeledButtonEvent().listen([](std::string_view name, std::string_view modID, EditLabeledButtonCallback callback, EditInitialCallbackLabeledButton initialValue, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editLabeledButtons[fmt::format("{}/{}-edit-labeled-button", modID, name)] = EditLabeledButtonSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	editLabeledButtonListener.leak();
-
-	auto preGeodeButtonWithLabelListener = AddPreGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, PreGeodeButtonWithLabelCallback callback, PreInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && button && button.data()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_preGeodeButtonWithLabels[fmt::format("{}/{}-pre-geode-button-with-label", modID, name)] = PreGeodeButtonWithLabelSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue, button,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	preGeodeButtonWithLabelListener.leak();
-
-	auto midGeodeButtonWithLabelListener = AddMidGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, MidGeodeButtonWithLabelCallback callback, MidInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && button && button.data()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_midGeodeButtonWithLabels[fmt::format("{}/{}-mid-geode-button-with-label", modID, name)] = MidGeodeButtonWithLabelSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue, button,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	midGeodeButtonWithLabelListener.leak();
-
-	auto editGeodeButtonWithLabelListener = AddEditGeodeButtonWithLabelEvent().listen([](std::string_view name, std::string_view modID, EditGeodeButtonWithLabelCallback callback, EditInitialCallbackGeodeButtonWithLabel initialValue, geode::Ref<geode::Button> button, std::string_view desc, geode::Mod* mod) {
-		if (mod && !name.empty() && button && button.data()) {
-			const std::string& lockedInDesc = FORMATTED_DESC;
-			g_editGeodeButtonWithLabels[fmt::format("{}/{}-edit-geode-button-with-label", modID, name)] = EditGeodeButtonWithLabelSetting{
-				fmt::format("{}", name),
-				FORMATTED_MOD_INFO,
-				callback, initialValue, button,
-				lockedInDesc
-			};
-		} else if (mod && name.empty()) log::error("UH-OH! A setting from {} was provided without a name!", mod->getName());
-		else if (mod && (!button || !button.data())) log::error("UH-OH! A setting from {} was provided without a valid button node!", mod->getName());
-		return ListenerResult::Stop;
-	});
-	editGeodeButtonWithLabelListener.leak();
+	LISTENER_GEODE_BUTTON(pre, Pre, "pre")
+	LISTENER_GEODE_BUTTON(mid, Mid, "mid")
+	LISTENER_GEODE_BUTTON(edit, Edit, "edit")
 }
 
 // keep for debugging
